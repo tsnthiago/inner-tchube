@@ -24,6 +24,7 @@ if not ANDROID_API_KEY:
 CLIENT_VERSION = os.getenv("CLIENT_VERSION", "2.20250626.01.00")
 ANDROID_VERSION = os.getenv("ANDROID_VERSION", "20.10.38")
 TIMEOUT = int(os.getenv("TIMEOUT", "30"))
+TIMEOUT_CHANNEL = int(os.getenv("TIMEOUT_CHANNEL", "300"))  # 5 min for channel processing
 
 METADATA_HL = os.getenv("METADATA_HL", "pt")
 METADATA_GL = os.getenv("METADATA_GL", "BR")

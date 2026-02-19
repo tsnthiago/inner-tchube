@@ -7,15 +7,44 @@ import sys
 from .config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
 from innertube import InnerTube
 
+TYPE_CHANNEL = "EgIQAg%3D%3D"
+
+
+def _resolve_handle_to_channel_id(handle: str) -> str:
+    """Resolve @handle to channel ID via search."""
+    client = InnerTube(INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION)
+    query = handle if handle.startswith("@") else f"@{handle}"
+    data = client.search(query, params=TYPE_CHANNEL)
+    slr = (
+        data.get("contents", {})
+        .get("twoColumnSearchResultsRenderer", {})
+        .get("primaryContents", {})
+        .get("sectionListRenderer", {})
+        .get("contents", [])
+    )
+    for section in slr:
+        for item in section.get("itemSectionRenderer", {}).get("contents", []):
+            cr = item.get("channelRenderer", {})
+            if cr.get("channelId"):
+                return cr["channelId"]
+    raise ValueError(f"Channel not found for handle: {handle}")
+
 
 def _channel_id(url_or_id: str) -> str:
+    """Return channel ID (UC...). Accepts: UC..., channel URL, @handle, youtube.com/@handle."""
     s = url_or_id.strip()
+    # Channel ID (UC + 22 chars)
     if s.startswith("UC") and len(s) == 24 and s[2:].replace("_", "").replace("-", "").replace(".", "").isalnum():
         return s
-    m = re.search(r"(?:youtube\.com/channel/|/channel/)(UC[a-zA-Z0-9_-]{22})", s)
+    # youtube.com/channel/UC...
+    m = re.search(r"(?:youtube\.com/channel/|/channel/)(UC[a-zA-Z0-9_-]{22})", s, re.IGNORECASE)
     if m:
         return m.group(1)
-    raise ValueError(f"Invalid channel URL or ID: {url_or_id}")
+    # @handle or youtube.com/@handle
+    handle_match = re.search(r"(?:youtube\.com/|^)(@[a-zA-Z0-9_-]+)", s, re.IGNORECASE)
+    if handle_match:
+        return _resolve_handle_to_channel_id(handle_match.group(1))
+    raise ValueError(f"Invalid channel URL, ID or handle: {url_or_id}")
 
 
 def get_channel_videos(channel_id: str, continuation: str | None = None) -> dict:
@@ -30,9 +59,10 @@ def get_channel_videos(channel_id: str, continuation: str | None = None) -> dict
         channel_data = client.browse(cid)
         tabs = channel_data.get("contents", {}).get("twoColumnBrowseResultsRenderer", {}).get("tabs", [])
         videos_tab = None
+        videos_titles = ("Videos", "Vídeos")  # en, pt-BR
         for t in tabs:
             tr = t.get("tabRenderer", {})
-            if tr.get("title") == "Videos":
+            if tr.get("title") in videos_titles:
                 videos_tab = tr
                 break
         if not videos_tab:

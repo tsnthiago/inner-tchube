@@ -204,7 +204,7 @@
         "header": [{"key": "Content-Type", "value": "application/json"}],
         "body": {
           "mode": "raw",
-          "raw": "{\"query\": \"climate change\", \"top_k\": 5, \"video_id\": null, \"output_dimensionality\": 768}"
+          "raw": "{\"query\": \"climate change\", \"top_k\": 5, \"video_id\": null}"
         },
         "url": {
           "raw": "http://127.0.0.1:8000/search-videos",

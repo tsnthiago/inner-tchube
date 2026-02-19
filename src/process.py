@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from .config import TIMEOUT_CHANNEL
 from .get_metadata import get_metadata, _video_id
 from .get_transcript import get_transcript
 from .get_comments import get_comments
@@ -19,9 +20,9 @@ def _ensure_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
-def process_video(video_id: str) -> dict:
+def process_video(video_id: str, timeout: int | None = None) -> dict:
     """Fetch metadata, transcript, comments for a video. Returns aggregated dict."""
-    metadata = get_metadata(video_id)
+    metadata = get_metadata(video_id, timeout=timeout)
 
     transcript = None
     try:
@@ -69,21 +70,21 @@ def save_channel_json(channel_id: str, data: dict) -> Path:
     return path
 
 
-def _get_all_channel_videos(channel_id: str) -> list[dict]:
-    """Fetch all videos from a channel with pagination."""
+def _get_channel_videos(channel_id: str, max_videos: int = 20) -> list[dict]:
+    """Fetch videos from a channel with pagination, limited to max_videos."""
     all_items = []
     result = get_channel_videos(channel_id)
     all_items.extend(result["items"])
-    while result.get("continuation"):
+    while result.get("continuation") and len(all_items) < max_videos:
         result = get_channel_videos(channel_id, continuation=result["continuation"])
         all_items.extend(result["items"])
-    return all_items
+    return all_items[:max_videos]
 
 
-def process_channel(channel_id: str) -> dict:
-    """Process channel: get all videos, process new ones, save channel JSON."""
+def process_channel(channel_id: str, max_videos: int = 20) -> dict:
+    """Process channel: get videos (up to max_videos), process new ones, save channel JSON."""
     cid = _channel_id(channel_id)
-    all_videos = _get_all_channel_videos(cid)
+    all_videos = _get_channel_videos(cid, max_videos=max_videos)
     video_ids = [v["video_id"] for v in all_videos]
 
     channel_info = None
@@ -95,7 +96,7 @@ def process_channel(channel_id: str) -> dict:
         if video_path.exists():
             continue
         try:
-            data = process_video(vid)
+            data = process_video(vid, timeout=TIMEOUT_CHANNEL)
             save_video_json(vid, data)
             newly_processed.append(vid)
             if not channel_info and data.get("metadata"):
@@ -142,8 +143,13 @@ def _normalize_channel_id(raw: str) -> str | None:
         return None
 
 
-def process_items(videos: list[str] | None = None, channels: list[str] | None = None) -> dict:
-    """Process videos and channels, skip existing. Returns summary."""
+def process_items(
+    videos: list[str] | None = None,
+    channels: list[str] | None = None,
+    max_videos_per_channel: int = 20,
+) -> dict:
+    """Process videos and channels, skip existing. Returns summary.
+    max_videos_per_channel: limit of videos to fetch/process per channel (default 20)."""
     videos = videos or []
     channels = channels or []
 
@@ -173,7 +179,7 @@ def process_items(videos: list[str] | None = None, channels: list[str] | None = 
             errors.append({"input": raw, "error": "Invalid channel ID or URL"})
             continue
         try:
-            result = process_channel(cid)
+            result = process_channel(cid, max_videos=max_videos_per_channel)
             processed.append(f"channel:{cid}")
             processed.extend(result.get("newly_processed", []))
         except Exception as e:

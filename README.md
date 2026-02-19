@@ -133,11 +133,12 @@ curl "http://127.0.0.1:8000/channel-from-video?url_or_id=dQw4w9WgXcQ"
 # Search (video|channel|playlist|film)
 curl "http://127.0.0.1:8000/search?q=arctic%20monkeys&type=video"
 
-# Search with continuation
-curl "http://127.0.0.1:8000/search?q=arctic%20monkeys&type=video&continuation=TOKEN"
+# Search with continuation (q optional when continuation is provided)
+curl "http://127.0.0.1:8000/search?continuation=TOKEN"
 
-# Channel videos
+# Channel videos (ID, URL, or @handle)
 curl "http://127.0.0.1:8000/channel-videos?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw"
+curl "http://127.0.0.1:8000/channel-videos?channel_id=%40alcenicorrea"
 
 # Channel videos with continuation
 curl "http://127.0.0.1:8000/channel-videos?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw&continuation=TOKEN"
@@ -151,8 +152,8 @@ curl "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top&continuation
 # Analyze transcript (Gemini)
 curl "http://127.0.0.1:8000/analyze-transcript?url_or_id=dQw4w9WgXcQ&prompt=Summarize%20this%20video"
 
-# Embeddings (video_id: load/process, embed transcript, save to Qdrant; requires GEMINI_API_KEY, Qdrant)
-curl -X POST "http://127.0.0.1:8000/embeddings" -H "Content-Type: application/json" -d "{\"video_id\": \"dQw4w9WgXcQ\", \"output_dimensionality\": 768}"
+# Embeddings (load/process video, embed transcript, save to Qdrant; requires GEMINI_API_KEY, Qdrant)
+curl -X POST "http://127.0.0.1:8000/embeddings" -H "Content-Type: application/json" -d "{\"video_id\": \"dQw4w9WgXcQ\"}"
 
 # Search videos (semantic search over Qdrant)
 curl -X POST "http://127.0.0.1:8000/search-videos" -H "Content-Type: application/json" -d "{\"query\": \"climate change\", \"top_k\": 5}"
@@ -170,9 +171,11 @@ curl -X POST "http://127.0.0.1:8000/cluster" -H "Content-Type: application/json"
 curl -X POST "http://127.0.0.1:8000/semantic-search" -H "Content-Type: application/json" -d "{\"query\": \"climate change\", \"corpus\": [\"AI helps climate\", \"Sports news\", \"Weather report\"], \"top_k\": 2}"
 
 # Process (metadata + transcript + comments, saves to output/)
+# max_videos: limit per channel (default 20). Accepts video/channel URLs, IDs, or @handle.
 curl "http://127.0.0.1:8000/process?videos=dQw4w9WgXcQ"
-curl "http://127.0.0.1:8000/process?channels=UCXuqSBlHAE6Xw-yeJA0Tunw"
-curl -X POST "http://127.0.0.1:8000/process" -H "Content-Type: application/json" -d "{\"videos\":[\"dQw4w9WgXcQ\"],\"channels\":[]}"
+curl "http://127.0.0.1:8000/process?channels=UCXuqSBlHAE6Xw-yeJA0Tunw&max_videos=20"
+curl "http://127.0.0.1:8000/process?channels=%40alcenicorrea&max_videos=5"
+curl -X POST "http://127.0.0.1:8000/process" -H "Content-Type: application/json" -d '{"videos":["dQw4w9WgXcQ"],"channels":["@alcenicorrea"],"max_videos":10}'
 ```
 
 ## Process and Scheduler
@@ -182,13 +185,13 @@ The `/process` endpoint fetches metadata, transcript, and comments for videos/ch
 - **monitored_channels.json**: List of channel IDs to monitor, e.g. `["UCxxx...", "UCyyy..."]`
 - **MONITORED_CHANNELS** (env): Comma-separated channel IDs (overrides file)
 - **output/**: `output/videos/{video_id}.json`, `output/channels/{channel_id}.json`
-- **Transcript, metadata, comments, analyze-transcript, embeddings:** Check `output/` first; if data exists, load from file; otherwise fetch from API and save.
+- **Transcript, metadata, analyze-transcript, embeddings:** Check `output/` first; if data exists, load from file; otherwise fetch from API and save. **Comments:** Always fetched live (no cache).
 
 ## Config
 
-Parameters (API keys, versions, timeout, GEMINI_API_KEY, GEMINI_MODEL, GEMINI_COST_PER_1M_INPUT, GEMINI_COST_PER_1M_OUTPUT) in `.env`. Copy `.env.example` to `.env`. Set `GEMINI_API_KEY` for `analyze_transcript`. Cost vars are optional (for usage estimation).
+Parameters (API keys, versions, timeout, GEMINI_API_KEY, GEMINI_MODEL, GEMINI_COST_PER_1M_INPUT, GEMINI_COST_PER_1M_OUTPUT) in `.env`. Copy `.env.example` to `.env`. Set `GEMINI_API_KEY` for `analyze_transcript`. Cost vars are optional (for usage estimation). `TIMEOUT_CHANNEL` (default 300s) for channel processing.
 
-Functions accept full URLs or video ID (11 chars): `https://www.youtube.com/watch?v=VIDEO_ID`, `https://youtu.be/VIDEO_ID`, `dQw4w9WgXcQ`.
+Functions accept full URLs or IDs: videos `https://www.youtube.com/watch?v=VIDEO_ID`, `dQw4w9WgXcQ`; channels `UC...`, `https://youtube.com/channel/UC...`, `@handle`, `https://youtube.com/@handle`.
 
 ## Structure
 

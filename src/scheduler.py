@@ -29,11 +29,12 @@ def _get_monitored_channels() -> list[str]:
 
 
 def check_monitored_channels() -> None:
-    """Process all monitored channels (new videos only)."""
+    """Process all monitored channels (new videos only, max 20 per channel)."""
     channels = _get_monitored_channels()
+    max_videos = int(os.getenv("PROCESS_MAX_VIDEOS", "20"))
     for channel_id in channels:
         try:
-            process_channel(channel_id)
+            process_channel(channel_id, max_videos=max_videos)
         except Exception:
             pass
 

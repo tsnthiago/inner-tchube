@@ -19,14 +19,15 @@ HEADERS = {
 CONTEXT = {"client": {"clientName": "WEB", "clientVersion": CLIENT_VERSION, "hl": METADATA_HL, "gl": METADATA_GL}}
 
 
-def get_metadata(url_or_id: str) -> dict:
-    """Returns video metadata. Accepts URL or ID."""
+def get_metadata(url_or_id: str, timeout: int | None = None) -> dict:
+    """Returns video metadata. Accepts URL or ID. Optional timeout overrides default."""
     video_id = _video_id(url_or_id)
     ref = f"https://www.youtube.com/watch?v={video_id}"
     h = {**HEADERS, "Referer": ref}
+    t = timeout if timeout is not None else TIMEOUT
 
-    player = requests.post(f"{BASE_URL}/player?key={WEB_API_KEY}", json={"context": CONTEXT, "videoId": video_id}, headers=h, timeout=TIMEOUT).json()
-    next_data = requests.post(f"{BASE_URL}/next?key={WEB_API_KEY}", json={"context": CONTEXT, "videoId": video_id}, headers=h, timeout=TIMEOUT).json()
+    player = requests.post(f"{BASE_URL}/player?key={WEB_API_KEY}", json={"context": CONTEXT, "videoId": video_id}, headers=h, timeout=t).json()
+    next_data = requests.post(f"{BASE_URL}/next?key={WEB_API_KEY}", json={"context": CONTEXT, "videoId": video_id}, headers=h, timeout=t).json()
 
     vd = player.get("videoDetails", {}) or {}
     mf = player.get("microformat", {}).get("playerMicroformatRenderer", {}) or {}
