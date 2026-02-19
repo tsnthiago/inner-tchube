@@ -78,6 +78,16 @@ def upsert_video_chunks(
     return len(points)
 
 
+def get_collection_vector_size() -> int | None:
+    """Return the vector size of the video_chunks collection, or None if it doesn't exist."""
+    client = _get_client()
+    collections = client.get_collections().collections
+    if COLLECTION_NAME not in [c.name for c in collections]:
+        return None
+    info = client.get_collection(COLLECTION_NAME)
+    return info.config.params.vectors.size
+
+
 def search(
     query_vector: list[float],
     limit: int = 5,

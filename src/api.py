@@ -15,7 +15,7 @@ from .embeddings import create_embeddings
 from .semantic import semantic_similarity, classify, cluster, semantic_search
 from .process import process_items, load_or_process_video
 from .scheduler import start_scheduler
-from .qdrant_store import upsert_video_chunks, search as qdrant_search, video_chunks_exist
+from .qdrant_store import upsert_video_chunks, search as qdrant_search, video_chunks_exist, get_collection_vector_size
 
 _scheduler = None
 
@@ -172,16 +172,21 @@ def cluster_endpoint(body: ClusterBody):
 
 @app.post("/search-videos")
 def search_videos_endpoint(body: SearchVideosBody):
-    """Semantic search over video chunks in Qdrant."""
+    """Semantic search over video chunks in Qdrant. Query embedding uses same dimension as stored vectors."""
     from .embeddings import create_embeddings
 
     if not body.query.strip():
         return {"error": "Provide query"}
+
+    output_dimensionality = get_collection_vector_size()
+    if output_dimensionality is None:
+        return {"error": "No video chunks in Qdrant. Index at least one video with POST /embeddings first."}
+
     try:
         result = create_embeddings(
             texts=[body.query],
             task_type="RETRIEVAL_QUERY",
-            output_dimensionality=body.output_dimensionality,
+            output_dimensionality=output_dimensionality,
             normalize=True,
         )
     except ValueError as e:
