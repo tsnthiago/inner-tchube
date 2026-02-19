@@ -1,7 +1,4 @@
-"""
-YouTube video metadata via InnerTube API.
-Usage: from get_metadata import get_metadata
-"""
+"""YouTube video metadata via InnerTube API."""
 
 import re
 import sys
@@ -40,15 +37,18 @@ def get_metadata(url_or_id: str) -> dict:
 
     likes, data_pub = None, None
     for item in contents:
-        if "videoPrimaryInfoRenderer" in item:
-            vpi = item["videoPrimaryInfoRenderer"]
-            data_pub = vpi.get("dateText", {}).get("simpleText")
-            try:
-                bvm = vpi.get("videoActions", {}).get("menuRenderer", {}).get("topLevelButtons", [{}])[0].get("segmentedLikeDislikeButtonViewModel", {}).get("likeButtonViewModel", {}).get("likeButtonViewModel", {}).get("toggleButtonViewModel", {}).get("toggleButtonViewModel", {}).get("defaultButtonViewModel", {}).get("buttonViewModel", {})
-                likes = bvm.get("title")
-            except (IndexError, KeyError, TypeError):
-                pass
-            break
+        if "videoPrimaryInfoRenderer" not in item:
+            continue
+        vpi = item["videoPrimaryInfoRenderer"]
+        data_pub = vpi.get("dateText", {}).get("simpleText")
+        try:
+            b = vpi.get("videoActions", {}).get("menuRenderer", {}).get("topLevelButtons", [{}])[0]
+            b = b.get("segmentedLikeDislikeButtonViewModel", {}).get("likeButtonViewModel", {}).get("likeButtonViewModel", {})
+            b = b.get("toggleButtonViewModel", {}).get("toggleButtonViewModel", {}).get("defaultButtonViewModel", {}).get("buttonViewModel", {})
+            likes = b.get("title")
+        except (IndexError, KeyError, TypeError):
+            pass
+        break
 
     thumbs = vd.get("thumbnail", {}).get("thumbnails", [])
     thumb_url = max(thumbs, key=lambda t: t.get("width", 0)).get("url") if thumbs else f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"

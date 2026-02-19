@@ -19,21 +19,26 @@ A minimal Python project that fetches YouTube video transcripts and metadata usi
 
 ## Overview
 
-This project provides two standalone modules:
+This project provides modules for fetching YouTube data:
 
 | Module | Purpose |
 |--------|---------|
 | `get_transcript.py` | Fetches video captions/transcripts (prefers auto-generated) |
 | `get_metadata.py` | Fetches video metadata (title, views, likes, thumbnail, etc.) |
+| `get_transcript_lib.py` | Transcript via innertube library (prefers ASR) |
+| `search.py` | Search videos, channels, playlists via innertube |
+| `get_channel_videos.py` | List channel videos via innertube |
+| `get_comments.py` | List video comments via innertube |
 
-Both use direct HTTP requests to `youtubei.googleapis.com` with publicly available API keys. No authentication or Google Cloud setup is needed.
+Transcript and metadata use direct HTTP requests; the lib-based modules use the `innertube` package. No authentication or Google Cloud setup is needed.
 
 ---
 
 ## Requirements
 
 - **Python 3.10+**
-- **requests** (single dependency)
+- **requests** – for transcript and metadata
+- **innertube** – for search, channel videos, comments, and lib-based transcript
 
 ---
 
@@ -46,7 +51,7 @@ pip install -r requirements.txt
 Or:
 
 ```bash
-pip install requests
+pip install requests innertube
 ```
 
 ---
@@ -58,6 +63,9 @@ pip install requests
 ```python
 from get_transcript import get_transcript
 from get_metadata import get_metadata
+from search import search
+from get_channel_videos import get_channel_videos
+from get_comments import get_comments
 
 # Transcript (returns list of {text, start_ms})
 segments = get_transcript("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
@@ -67,6 +75,21 @@ for s in segments:
 # Metadata (returns dict)
 meta = get_metadata("dQw4w9WgXcQ")
 print(meta["titulo"], meta["views"], meta["thumbnail_url"])
+
+# Search (returns {items, continuation})
+result = search("arctic monkeys", type="video")
+for item in result["items"]:
+    print(f"[{item['type']}] {item['id']} - {item['title']}")
+
+# Channel videos (returns {items, continuation})
+result = get_channel_videos("UCXuqSBlHAE6Xw-yeJA0Tunw")
+for item in result["items"]:
+    print(f"[{item['video_id']}] {item['title']}")
+
+# Comments (returns {items, continuation})
+result = get_comments("dQw4w9WgXcQ", sort="top")
+for item in result["items"]:
+    print(f"[{item['autor']}] {item['texto']}")
 ```
 
 ### Command Line
@@ -78,9 +101,18 @@ python get_transcript.py dQw4w9WgXcQ
 
 # Metadata (prints all fields)
 python get_metadata.py dQw4w9WgXcQ
+
+# Search
+python search.py "arctic monkeys" --type video
+
+# Channel videos
+python get_channel_videos.py UCXuqSBlHAE6Xw-yeJA0Tunw
+
+# Comments
+python get_comments.py dQw4w9WgXcQ --sort top
 ```
 
-Both functions accept:
+Functions accept:
 - Full URLs: `https://www.youtube.com/watch?v=VIDEO_ID`, `https://youtu.be/VIDEO_ID`, `https://youtube.com/embed/VIDEO_ID`
 - Raw video ID: `dQw4w9WgXcQ` (11 characters)
 
@@ -90,9 +122,13 @@ Both functions accept:
 
 ```
 innertube/
-├── get_transcript.py   # Transcript fetcher
-├── get_metadata.py     # Metadata fetcher
-├── requirements.txt    # requests
+├── get_transcript.py       # Transcript fetcher (HTTP)
+├── get_metadata.py        # Metadata fetcher (HTTP)
+├── get_transcript_lib.py  # Transcript via innertube
+├── search.py              # Search via innertube
+├── get_channel_videos.py  # Channel videos via innertube
+├── get_comments.py        # Video comments via innertube
+├── requirements.txt       # requests, innertube
 └── README.md
 ```
 
@@ -272,7 +308,7 @@ These keys are embedded in YouTube’s frontend and are publicly known.
 - **Transcript:** Only works for videos with captions (manual or auto-generated). Auto-generated (`asr`) is preferred when available.
 - **Metadata:** Structure can change if YouTube updates InnerTube. The likes path in particular is fragile.
 - **Rate limiting:** No official limits, but excessive requests may trigger blocks.
-- **Comments:** Not implemented; the current InnerTube comment structure uses `commentViewModel` instead of `commentRenderer`, which would require additional parsing.
+- **Comments:** Implemented via `get_comments.py`, but YouTube's newer API uses `commentViewModel` instead of `commentRenderer`, so `autor` and `texto` may be empty for some videos. Pagination via `continuation` still works.
 
 ---
 

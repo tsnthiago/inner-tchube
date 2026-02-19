@@ -1,7 +1,4 @@
-"""
-YouTube video transcripts via InnerTube API.
-Usage: from get_transcript import get_transcript
-"""
+"""YouTube video transcripts via InnerTube API."""
 
 import html
 import re
