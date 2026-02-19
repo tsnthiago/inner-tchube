@@ -1,0 +1,17 @@
+__pycache__
+*.py[cod]
+*$py.class
+.git
+.gitignore
+.cursor
+.env
+output/
+*.md
+.github
+InnerTchube.postman_collection.json
+TODO.md
+.pytest_cache
+.mypy_cache
+*.egg-info
+dist
+build

@@ -20,6 +20,27 @@ pip install -r requirements.txt
 
 Copy `.env.example` to `.env` and adjust if needed (defaults work out of the box). Note: `httpx` is pinned for innertube compatibility.
 
+## Docker
+
+Imagem leve com Python 3.13-slim. Build carrega apenas o necessário.
+
+```bash
+# Build
+docker build -t innertube:latest .
+
+# Run (crie .env a partir de .env.example se precisar de config)
+docker run -p 8000:8000 -v $(pwd)/output:/app/output -v $(pwd)/monitored_channels.json:/app/monitored_channels.json innertube:latest
+```
+
+Ou com Docker Compose:
+
+```bash
+cp .env.example .env   # opcional, app funciona com defaults
+docker compose up -d
+```
+
+API em `http://localhost:8000`, docs em `/docs`. Qdrant em `http://localhost:6333`. Volumes: `output/`, `monitored_channels.json`, `qdrant_storage/`. A API conecta ao Qdrant via `QDRANT_URL=http://qdrant:6333` na rede interna.
+
 ## Usage
 
 ### As a Library
@@ -169,6 +190,8 @@ innertube/
 │   ├── videos/
 │   └── channels/
 ├── monitored_channels.json
+├── Dockerfile
+├── docker-compose.yml
 ├── InnerTchube.postman_collection.json
 ├── .env.example
 ├── requirements.txt

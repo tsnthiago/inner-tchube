@@ -1,0 +1,21 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+      - ./monitored_channels.json:/app/monitored_channels.json
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - ./qdrant_storage:/qdrant/storage
+    restart: unless-stopped

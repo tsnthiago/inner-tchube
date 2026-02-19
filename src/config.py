@@ -22,5 +22,7 @@ INNERTUBE_CLIENT_VERSION = os.getenv("INNERTUBE_CLIENT_VERSION", "2.20250626.01.
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
+
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
 GEMINI_COST_PER_1M_INPUT = float(os.getenv("GEMINI_COST_PER_1M_INPUT", "0.10"))
 GEMINI_COST_PER_1M_OUTPUT = float(os.getenv("GEMINI_COST_PER_1M_OUTPUT", "0.40"))
