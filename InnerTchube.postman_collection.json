@@ -91,6 +91,113 @@
       "response": []
     },
     {
+      "name": "embeddings",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"text\": \"What is the meaning of life?\", \"task_type\": \"RETRIEVAL_DOCUMENT\", \"output_dimensionality\": 768}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/embeddings",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "embeddings"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "semantic-similarity",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"texts\": [\"What is life?\", \"What is existence?\", \"How to bake a cake?\"], \"output_dimensionality\": 768}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/semantic-similarity",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["semantic-similarity"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "classify",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"texts\": [\"I love this product\", \"This is spam\"], \"labels\": [\"positive\", \"negative\", \"spam\"], \"output_dimensionality\": 768}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/classify",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["classify"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "cluster",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"texts\": [\"doc about AI\", \"doc about sports\", \"doc about AI\", \"doc about food\"], \"n_clusters\": 2, \"output_dimensionality\": 768}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/cluster",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["cluster"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "semantic-search",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"climate change\", \"corpus\": [\"AI helps address climate challenges\", \"Sports news today\", \"Weather report\"], \"top_k\": 2, \"output_dimensionality\": 768}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/semantic-search",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["semantic-search"]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "process-get",
       "request": {
         "method": "GET",

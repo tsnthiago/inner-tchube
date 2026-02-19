@@ -85,6 +85,11 @@ for item in result["items"]:
 # Analyze transcript with Gemini (returns {text, usage?})
 result = analyze_transcript("dQw4w9WgXcQ", "Summarize this video")
 print(result["text"])
+
+# Embeddings (returns {embeddings, dimensions, count}, requires GEMINI_API_KEY)
+from src.embeddings import create_embeddings
+result = create_embeddings("What is the meaning of life?", task_type="RETRIEVAL_DOCUMENT", output_dimensionality=768)
+print(len(result["embeddings"][0]), "dimensions")
 ```
 
 ### Command Line
@@ -113,7 +118,7 @@ python -m uvicorn src.api:app --reload --host 127.0.0.1 --port 8000
 
 Server at `http://127.0.0.1:8000`. If port 8000 fails (WinError 10013), try `--port 8080`. Interactive docs at `/docs`.
 
-**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, channel-from-video, process, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
+**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, channel-from-video, embeddings, semantic-similarity, classify, cluster, semantic-search, process, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
 
 curl examples:
 
@@ -148,6 +153,22 @@ curl "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top&continuation
 # Analyze transcript (Gemini)
 curl "http://127.0.0.1:8000/analyze-transcript?url_or_id=dQw4w9WgXcQ&prompt=Summarize%20this%20video"
 
+# Embeddings (gemini-embedding-001, requires GEMINI_API_KEY)
+curl -X POST "http://127.0.0.1:8000/embeddings" -H "Content-Type: application/json" -d "{\"text\": \"What is the meaning of life?\"}"
+curl -X POST "http://127.0.0.1:8000/embeddings" -H "Content-Type: application/json" -d "{\"texts\": [\"doc1\", \"doc2\"], \"task_type\": \"RETRIEVAL_DOCUMENT\", \"output_dimensionality\": 768}"
+
+# Semantic similarity (cosine similarity matrix)
+curl -X POST "http://127.0.0.1:8000/semantic-similarity" -H "Content-Type: application/json" -d "{\"texts\": [\"What is life?\", \"What is existence?\", \"How to bake a cake?\"]}"
+
+# Classify (texts to nearest label)
+curl -X POST "http://127.0.0.1:8000/classify" -H "Content-Type: application/json" -d "{\"texts\": [\"I love this product\", \"This is spam\"], \"labels\": [\"positive\", \"negative\", \"spam\"]}"
+
+# Cluster (KMeans on embeddings)
+curl -X POST "http://127.0.0.1:8000/cluster" -H "Content-Type: application/json" -d "{\"texts\": [\"doc1\", \"doc2\", \"doc3\", \"doc4\"], \"n_clusters\": 2}"
+
+# Semantic search (query + corpus)
+curl -X POST "http://127.0.0.1:8000/semantic-search" -H "Content-Type: application/json" -d "{\"query\": \"climate change\", \"corpus\": [\"AI helps climate\", \"Sports news\", \"Weather report\"], \"top_k\": 2}"
+
 # Process (metadata + transcript + comments, saves to output/)
 curl "http://127.0.0.1:8000/process?videos=dQw4w9WgXcQ"
 curl "http://127.0.0.1:8000/process?channels=UCXuqSBlHAE6Xw-yeJA0Tunw"
@@ -181,6 +202,8 @@ innertube/
 │   ├── get_channel_videos.py
 │   ├── get_comments.py
 │   ├── analyze_transcript.py
+│   ├── embeddings.py
+│   ├── semantic.py
 │   ├── process.py
 │   ├── scheduler.py
 │   ├── config.py
@@ -200,6 +223,7 @@ innertube/
 
 ## Limitations
 
+- **Embeddings:** Requires `GEMINI_API_KEY`; uses gemini-embedding-001 (rate limits apply).
 - **Transcript:** Only videos with captions (manual or auto-generated).
 - **Metadata:** Structure may change if YouTube updates InnerTube.
 - **Comments:** On some videos `autor` and `texto` may be empty; pagination via `continuation` works.

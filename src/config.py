@@ -8,8 +8,19 @@ import os
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 BASE_URL = os.getenv("BASE_URL", "https://youtubei.googleapis.com/youtubei/v1")
-WEB_API_KEY = os.getenv("WEB_API_KEY", "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8")
-ANDROID_API_KEY = os.getenv("ANDROID_API_KEY", "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w")
+WEB_API_KEY = os.getenv("WEB_API_KEY")
+ANDROID_API_KEY = os.getenv("ANDROID_API_KEY")
+
+if not WEB_API_KEY:
+    raise RuntimeError(
+        "WEB_API_KEY is required. Set it in .env (copy from .env.example). "
+        "YouTube InnerTube keys are public/rotating but must not be hardcoded."
+    )
+if not ANDROID_API_KEY:
+    raise RuntimeError(
+        "ANDROID_API_KEY is required. Set it in .env (copy from .env.example). "
+        "YouTube InnerTube keys are public/rotating but must not be hardcoded."
+    )
 CLIENT_VERSION = os.getenv("CLIENT_VERSION", "2.20250626.01.00")
 ANDROID_VERSION = os.getenv("ANDROID_VERSION", "20.10.38")
 TIMEOUT = int(os.getenv("TIMEOUT", "30"))

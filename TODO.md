@@ -4,6 +4,6 @@
 
 - [ ] Remove keys from code
 - [x] Add get channel from video
-- [ ] Make it dockerized
+- [x] Make it dockerized
 - [ ] Implement endpoint for creating embeddings
 - [ ] Implement endpoint for vector search
