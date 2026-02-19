@@ -4,6 +4,7 @@ import argparse
 import re
 import sys
 
+from config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
 from innertube import InnerTube
 
 COMMENTS_SECTION = "engagement-panel-comments-section"
@@ -99,7 +100,7 @@ def get_comments(url_or_id: str, sort: str = "top", continuation: str | None = N
     Returns: {"items": [{"autor", "texto", "likes"}], "continuation": str|None}
     """
     video_id = _video_id(url_or_id)
-    client = InnerTube("WEB")
+    client = InnerTube(INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION)
     sort_title = "Newest" if sort.lower() == "newest" else "Top"
 
     if continuation:

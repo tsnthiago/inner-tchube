@@ -7,6 +7,8 @@ import xml.etree.ElementTree as ET
 
 import requests
 
+from config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION, TIMEOUT
+
 try:
     import innertube
 except ImportError:
@@ -25,7 +27,7 @@ def get_transcript(url_or_id: str) -> list[dict]:
         return _fallback_transcript(video_id)
 
     try:
-        client = innertube.InnerTube("ANDROID")
+        client = innertube.InnerTube("ANDROID", INNERTUBE_CLIENT_VERSION)
         data = client.player(video_id)
         tracks = data.get("captions", {}).get("playerCaptionsTracklistRenderer", {}).get("captionTracks", [])
     except Exception:
@@ -42,7 +44,7 @@ def get_transcript(url_or_id: str) -> list[dict]:
     r = requests.get(
         base_url,
         headers={"Referer": f"https://www.youtube.com/watch?v={video_id}"},
-        timeout=30,
+        timeout=TIMEOUT,
     )
     r.raise_for_status()
 

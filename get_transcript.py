@@ -7,11 +7,7 @@ import xml.etree.ElementTree as ET
 
 import requests
 
-BASE_URL = "https://youtubei.googleapis.com/youtubei/v1"
-ANDROID_API_KEY = "AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w"
-CLIENT_VERSION = "2.20250626.01.00"
-ANDROID_VERSION = "20.10.38"
-TIMEOUT = 30
+from config import ANDROID_API_KEY, ANDROID_VERSION, BASE_URL, CLIENT_VERSION, TIMEOUT
 
 HEADERS = {
     "Content-Type": "application/json",

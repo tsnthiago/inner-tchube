@@ -1,2 +1,5 @@
 requests
 innertube
+python-dotenv
+fastapi
+uvicorn[standard]

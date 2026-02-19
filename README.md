@@ -1,58 +1,14 @@
-# InnerTube – YouTube Transcript & Metadata
+# InnerTube – YouTube Data
 
-A minimal Python project that fetches YouTube video transcripts and metadata using the **InnerTube API**—YouTube's internal, undocumented API that powers the website. No official API key or quota limits required.
+Python modules to fetch YouTube transcripts, metadata, search, channel videos, and comments via the InnerTube API. No official API key or quota limits. Config via `.env`.
 
----
-
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Requirements](#requirements)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Project Structure](#project-structure)
-6. [Implementation Guide](#implementation-guide)
-7. [API Reference](#api-reference)
-8. [Recreating the Project](#recreating-the-project)
-
----
-
-## Overview
-
-This project provides modules for fetching YouTube data:
-
-| Module | Purpose |
-|--------|---------|
-| `get_transcript.py` | Fetches video captions/transcripts (prefers auto-generated) |
-| `get_metadata.py` | Fetches video metadata (title, views, likes, thumbnail, etc.) |
-| `get_transcript_lib.py` | Transcript via innertube library (prefers ASR) |
-| `search.py` | Search videos, channels, playlists via innertube |
-| `get_channel_videos.py` | List channel videos via innertube |
-| `get_comments.py` | List video comments via innertube |
-
-Transcript and metadata use direct HTTP requests; the lib-based modules use the `innertube` package. No authentication or Google Cloud setup is needed.
-
----
-
-## Requirements
-
-- **Python 3.10+**
-- **requests** – for transcript and metadata
-- **innertube** – for search, channel videos, comments, and lib-based transcript
-
----
-
-## Installation
+## Install
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Or:
-
-```bash
-pip install requests innertube
-```
+Copy `.env.example` to `.env` and adjust if needed (defaults work out of the box).
 
 ---
 
@@ -112,25 +68,46 @@ python get_channel_videos.py UCXuqSBlHAE6Xw-yeJA0Tunw
 python get_comments.py dQw4w9WgXcQ --sort top
 ```
 
+## Test
+
+```bash
+python test_all.py
+```
+
+Runs all functions with real videos and prints results.
+
+## API
+
+```bash
+uvicorn api:app --reload
+```
+
+Endpoints: `GET /transcript`, `/metadata`, `/search`, `/channel-videos`, `/comments`. See `/docs` for parameters.
+
+## Config
+
+All parameters (API keys, versions, timeout) are in `.env`. Copy `.env.example` to `.env`.
+
 Functions accept:
 - Full URLs: `https://www.youtube.com/watch?v=VIDEO_ID`, `https://youtu.be/VIDEO_ID`, `https://youtube.com/embed/VIDEO_ID`
 - Raw video ID: `dQw4w9WgXcQ` (11 characters)
 
 ---
 
-## Project Structure
+## Files
 
-```
-innertube/
-├── get_transcript.py       # Transcript fetcher (HTTP)
-├── get_metadata.py        # Metadata fetcher (HTTP)
-├── get_transcript_lib.py  # Transcript via innertube
-├── search.py              # Search via innertube
-├── get_channel_videos.py  # Channel videos via innertube
-├── get_comments.py        # Video comments via innertube
-├── requirements.txt       # requests, innertube
-└── README.md
-```
+| File | Description |
+|------|--------------|
+| `get_transcript.py` | Transcript via HTTP. Prefers ASR. |
+| `get_metadata.py` | Metadata via HTTP. |
+| `get_transcript_lib.py` | Transcript via innertube. |
+| `search.py` | Search via innertube. |
+| `get_channel_videos.py` | Channel videos via innertube. |
+| `get_comments.py` | Comments via innertube. |
+| `config.py` | Loads `.env`. |
+| `test_all.py` | Integration test. |
+| `api.py` | FastAPI wrapper. |
+| `.env.example` | Config template. |
 
 ---
 

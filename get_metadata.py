@@ -5,10 +5,7 @@ import sys
 
 import requests
 
-BASE_URL = "https://youtubei.googleapis.com/youtubei/v1"
-API_KEY = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8"
-CLIENT_VERSION = "2.20250626.01.00"
-TIMEOUT = 30
+from config import BASE_URL, CLIENT_VERSION, METADATA_GL, METADATA_HL, TIMEOUT, WEB_API_KEY
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -19,7 +16,7 @@ HEADERS = {
     "X-YouTube-Client-Version": CLIENT_VERSION,
     "Origin": "https://www.youtube.com",
 }
-CONTEXT = {"client": {"clientName": "WEB", "clientVersion": CLIENT_VERSION, "hl": "pt", "gl": "BR"}}
+CONTEXT = {"client": {"clientName": "WEB", "clientVersion": CLIENT_VERSION, "hl": METADATA_HL, "gl": METADATA_GL}}
 
 
 def get_metadata(url_or_id: str) -> dict:
@@ -28,8 +25,8 @@ def get_metadata(url_or_id: str) -> dict:
     ref = f"https://www.youtube.com/watch?v={video_id}"
     h = {**HEADERS, "Referer": ref}
 
-    player = requests.post(f"{BASE_URL}/player?key={API_KEY}", json={"context": CONTEXT, "videoId": video_id}, headers=h, timeout=TIMEOUT).json()
-    next_data = requests.post(f"{BASE_URL}/next?key={API_KEY}", json={"context": CONTEXT, "videoId": video_id}, headers=h, timeout=TIMEOUT).json()
+    player = requests.post(f"{BASE_URL}/player?key={WEB_API_KEY}", json={"context": CONTEXT, "videoId": video_id}, headers=h, timeout=TIMEOUT).json()
+    next_data = requests.post(f"{BASE_URL}/next?key={WEB_API_KEY}", json={"context": CONTEXT, "videoId": video_id}, headers=h, timeout=TIMEOUT).json()
 
     vd = player.get("videoDetails", {}) or {}
     mf = player.get("microformat", {}).get("playerMicroformatRenderer", {}) or {}

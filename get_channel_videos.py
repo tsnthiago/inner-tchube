@@ -4,6 +4,7 @@ import argparse
 import re
 import sys
 
+from config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
 from innertube import InnerTube
 
 
@@ -23,7 +24,7 @@ def get_channel_videos(channel_id: str, continuation: str | None = None) -> dict
     Returns: {"items": [{"video_id", "title"}], "continuation": str|None}
     """
     cid = _channel_id(channel_id)
-    client = InnerTube("WEB")
+    client = InnerTube(INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION)
 
     if continuation:
         data = client.browse(continuation=continuation)
