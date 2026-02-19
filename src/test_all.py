@@ -4,6 +4,7 @@ from . import config  # noqa: F401 - load .env
 
 from .get_transcript import get_transcript
 from .get_metadata import get_metadata
+from .get_channel_from_video import get_channel_from_video
 from .search import search
 from .get_channel_videos import get_channel_videos
 from .get_comments import get_comments
@@ -40,7 +41,17 @@ def run():
         print(f"  ERROR: {e}")
 
     print("\n" + "=" * 60)
-    print("3. search")
+    print("3. get_channel_from_video")
+    print("=" * 60)
+    try:
+        channel = get_channel_from_video(VIDEO_ID)
+        for k, v in channel.items():
+            print(f"  {k}: {v}")
+    except Exception as e:
+        print(f"  ERROR: {e}")
+
+    print("\n" + "=" * 60)
+    print("4. search")
     print("=" * 60)
     try:
         result = search(SEARCH_QUERY, type="video")
@@ -52,7 +63,7 @@ def run():
         print(f"  ERROR: {e}")
 
     print("\n" + "=" * 60)
-    print("4. get_channel_videos")
+    print("5. get_channel_videos")
     print("=" * 60)
     try:
         result = get_channel_videos(CHANNEL_ID)
@@ -63,7 +74,7 @@ def run():
         print(f"  ERROR: {e}")
 
     print("\n" + "=" * 60)
-    print("5. get_comments")
+    print("6. get_comments")
     print("=" * 60)
     try:
         result = get_comments(VIDEO_ID)

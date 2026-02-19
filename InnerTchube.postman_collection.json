@@ -63,6 +63,34 @@
       "response": []
     },
     {
+      "name": "get-channel-from-video",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/channel-from-video?url_or_id=dQw4w9WgXcQ",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "channel-from-video"
+          ],
+          "query": [
+            {
+              "key": "url_or_id",
+              "value": "dQw4w9WgXcQ"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "search",
       "request": {
         "method": "GET",

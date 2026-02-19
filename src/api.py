@@ -6,6 +6,7 @@ from fastapi import FastAPI, Query
 
 from .get_transcript import get_transcript
 from .get_metadata import get_metadata
+from .get_channel_from_video import get_channel_from_video
 from .search import search
 from .get_channel_videos import get_channel_videos
 from .get_comments import get_comments
@@ -22,6 +23,11 @@ def transcript(url_or_id: str = Query(..., description="Video URL or ID")):
 @app.get("/metadata")
 def metadata(url_or_id: str = Query(..., description="Video URL or ID")):
     return get_metadata(url_or_id)
+
+
+@app.get("/channel-from-video")
+def channel_from_video(url_or_id: str = Query(..., description="Video URL or ID")):
+    return get_channel_from_video(url_or_id)
 
 
 @app.get("/search")

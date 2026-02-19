@@ -1,11 +1,11 @@
 # InnerTube – YouTube Data
 
-Python modules to fetch YouTube transcripts, metadata, search, channel videos, and comments via the InnerTube API. No official API key or quota limits. Config via `.env`.
+Python modules to fetch YouTube transcripts, metadata, search, channel videos, channel-from-video, and comments via the InnerTube API. No official API key or quota limits. Config via `.env`.
 
 ```mermaid
 flowchart LR
     User[User] --> Entry[CLI / Library / API]
-    Entry --> Modules[transcript, metadata, search, channel_videos, comments, analyze_transcript]
+    Entry --> Modules[transcript, metadata, channel_from_video, search, channel_videos, comments, analyze_transcript]
     Modules --> InnerTube[InnerTube API]
     InnerTube --> YouTube[YouTube]
 ```
@@ -27,6 +27,7 @@ Copy `.env.example` to `.env` and adjust if needed (defaults work out of the box
 ```python
 from src.get_transcript import get_transcript
 from src.get_metadata import get_metadata
+from src.get_channel_from_video import get_channel_from_video
 from src.search import search
 from src.get_channel_videos import get_channel_videos
 from src.get_comments import get_comments
@@ -40,6 +41,10 @@ for s in segments:
 # Metadata (returns dict)
 meta = get_metadata("dQw4w9WgXcQ")
 print(meta["titulo"], meta["views"], meta["thumbnail_url"])
+
+# Channel from video (returns {canal_id, nome, url_canal})
+channel = get_channel_from_video("dQw4w9WgXcQ")
+print(channel["canal_id"], channel["nome"])
 
 # Search (returns {items, continuation})
 result = search("arctic monkeys", type="video")
@@ -66,6 +71,7 @@ print(result["text"])
 ```bash
 python -m src.get_transcript dQw4w9WgXcQ
 python -m src.get_metadata dQw4w9WgXcQ
+python -m src.get_channel_from_video dQw4w9WgXcQ
 python -m src.search "arctic monkeys" --type video
 python -m src.get_channel_videos UCXuqSBlHAE6Xw-yeJA0Tunw
 python -m src.get_comments dQw4w9WgXcQ --sort top
@@ -86,7 +92,7 @@ python -m uvicorn src.api:app --reload --host 127.0.0.1 --port 8000
 
 Server at `http://127.0.0.1:8000`. If port 8000 fails (WinError 10013), try `--port 8080`. Interactive docs at `/docs`.
 
-**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
+**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, channel-from-video, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
 
 curl examples:
 
@@ -96,6 +102,9 @@ curl "http://127.0.0.1:8000/transcript?url_or_id=dQw4w9WgXcQ"
 
 # Metadata
 curl "http://127.0.0.1:8000/metadata?url_or_id=dQw4w9WgXcQ"
+
+# Channel from video
+curl "http://127.0.0.1:8000/channel-from-video?url_or_id=dQw4w9WgXcQ"
 
 # Search (video|channel|playlist|film)
 curl "http://127.0.0.1:8000/search?q=arctic%20monkeys&type=video"
@@ -132,6 +141,7 @@ innertube/
 ├── src/
 │   ├── get_transcript.py
 │   ├── get_metadata.py
+│   ├── get_channel_from_video.py
 │   ├── get_transcript_lib.py
 │   ├── search.py
 │   ├── get_channel_videos.py
