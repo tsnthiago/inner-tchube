@@ -10,15 +10,16 @@ from .config import (
     GEMINI_COST_PER_1M_OUTPUT,
     GEMINI_MODEL,
 )
-from .get_transcript import get_transcript
+from .process import load_or_process_video
 
 
 def analyze_transcript(url_or_id: str, prompt: str, model: str | None = None) -> dict:
-    """Fetch transcript, send to Gemini, return analysis with usage and cost. Accepts video URL or ID."""
+    """Load/process video, send transcript to Gemini, return analysis with usage and cost."""
     if not GEMINI_API_KEY:
         raise ValueError("GEMINI_API_KEY not set in .env")
 
-    segments = get_transcript(url_or_id)
+    data = load_or_process_video(url_or_id)
+    segments = data.get("transcript") or []
     transcript_text = "\n".join(s["text"] for s in segments).strip()
     if not transcript_text:
         raise ValueError("Transcript not available for this video.")

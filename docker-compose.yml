@@ -6,6 +6,8 @@ services:
     volumes:
       - ./output:/app/output
       - ./monitored_channels.json:/app/monitored_channels.json
+    env_file:
+      - .env
     environment:
       - QDRANT_URL=http://qdrant:6333
     depends_on:

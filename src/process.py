@@ -48,6 +48,18 @@ def save_video_json(video_id: str, data: dict) -> Path:
     return path
 
 
+def load_or_process_video(video_id: str) -> dict:
+    """Carrega de output/videos/{id}.json se existir; senão processa, salva e retorna."""
+    vid = _video_id(video_id)
+    path = VIDEOS_DIR / f"{vid}.json"
+    if path.exists():
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    data = process_video(vid)
+    save_video_json(vid, data)
+    return data
+
+
 def save_channel_json(channel_id: str, data: dict) -> Path:
     """Save channel data to output/channels/{channel_id}.json."""
     _ensure_dir(CHANNELS_DIR)

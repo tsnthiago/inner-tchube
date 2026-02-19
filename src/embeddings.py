@@ -6,6 +6,7 @@ from google.genai import types
 from .config import GEMINI_API_KEY
 
 EMBEDDING_MODEL = "gemini-embedding-001"
+MAX_BATCH_SIZE = 100  # Gemini API limit per request
 TASK_TYPES = (
     "SEMANTIC_SIMILARITY",
     "CLASSIFICATION",
@@ -44,24 +45,26 @@ def create_embeddings(
         task_type=task_type,
         output_dimensionality=output_dimensionality,
     )
-    result = client.models.embed_content(
-        model=EMBEDDING_MODEL,
-        contents=texts,
-        config=config,
-    )
 
     embeddings = []
-    for emb in result.embeddings:
-        values = list(emb.values) if hasattr(emb, "values") else list(emb)
-        if normalize and output_dimensionality < 3072:
-            import numpy as np
+    for i in range(0, len(texts), MAX_BATCH_SIZE):
+        batch = texts[i : i + MAX_BATCH_SIZE]
+        result = client.models.embed_content(
+            model=EMBEDDING_MODEL,
+            contents=batch,
+            config=config,
+        )
+        for emb in result.embeddings:
+            values = list(emb.values) if hasattr(emb, "values") else list(emb)
+            if normalize and output_dimensionality < 3072:
+                import numpy as np
 
-            arr = np.array(values, dtype=float)
-            norm = np.linalg.norm(arr)
-            if norm > 0:
-                arr = arr / norm
-            values = arr.tolist()
-        embeddings.append(values)
+                arr = np.array(values, dtype=float)
+                norm = np.linalg.norm(arr)
+                if norm > 0:
+                    arr = arr / norm
+                values = arr.tolist()
+            embeddings.append(values)
 
     return {
         "embeddings": embeddings,

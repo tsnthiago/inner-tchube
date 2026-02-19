@@ -7,17 +7,15 @@ from . import config  # noqa: F401 - load .env
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
 
-from .get_transcript import get_transcript
-from .get_metadata import get_metadata
 from .get_channel_from_video import get_channel_from_video
 from .search import search
 from .get_channel_videos import get_channel_videos
-from .get_comments import get_comments
 from .analyze_transcript import analyze_transcript
 from .embeddings import create_embeddings
 from .semantic import semantic_similarity, classify, cluster, semantic_search
-from .process import process_items
+from .process import process_items, load_or_process_video
 from .scheduler import start_scheduler
+from .qdrant_store import upsert_video_chunks, search as qdrant_search, video_chunks_exist
 
 _scheduler = None
 
@@ -36,12 +34,14 @@ app = FastAPI(title="InnerTube API", lifespan=lifespan)
 
 @app.get("/transcript")
 def transcript(url_or_id: str = Query(..., description="Video URL or ID")):
-    return get_transcript(url_or_id)
+    data = load_or_process_video(url_or_id)
+    return data.get("transcript") or []
 
 
 @app.get("/metadata")
 def metadata(url_or_id: str = Query(..., description="Video URL or ID")):
-    return get_metadata(url_or_id)
+    data = load_or_process_video(url_or_id)
+    return data.get("metadata") or {}
 
 
 @app.get("/channel-from-video")
@@ -72,7 +72,13 @@ def comments(
     sort: str = Query("top", description="top|newest"),
     continuation: str | None = Query(None, description="Continuation token"),
 ):
-    return get_comments(url_or_id, sort=sort, continuation=continuation)
+    from .get_comments import get_comments
+
+    if continuation:
+        return get_comments(url_or_id, sort=sort, continuation=continuation)
+    data = load_or_process_video(url_or_id)
+    items = data.get("comments") or []
+    return {"items": items, "continuation": None}
 
 
 @app.get("/analyze-transcript")
@@ -98,11 +104,9 @@ def process_get(
 
 
 class EmbeddingsBody(BaseModel):
-    text: str | None = None
-    texts: list[str] | None = None
+    video_id: str
     task_type: str = "RETRIEVAL_DOCUMENT"
-    output_dimensionality: int = 3072
-    normalize: bool | None = None
+    output_dimensionality: int = 768
 
 
 class SemanticSimilarityBody(BaseModel):
@@ -127,6 +131,13 @@ class SemanticSearchBody(BaseModel):
     query: str
     corpus: list[str]
     top_k: int = 5
+    output_dimensionality: int = 768
+
+
+class SearchVideosBody(BaseModel):
+    query: str
+    top_k: int = 5
+    video_id: str | None = None
     output_dimensionality: int = 768
 
 
@@ -159,6 +170,40 @@ def cluster_endpoint(body: ClusterBody):
     )
 
 
+@app.post("/search-videos")
+def search_videos_endpoint(body: SearchVideosBody):
+    """Semantic search over video chunks in Qdrant."""
+    from .embeddings import create_embeddings
+
+    if not body.query.strip():
+        return {"error": "Provide query"}
+    try:
+        result = create_embeddings(
+            texts=[body.query],
+            task_type="RETRIEVAL_QUERY",
+            output_dimensionality=body.output_dimensionality,
+            normalize=True,
+        )
+    except ValueError as e:
+        return {"error": str(e)}
+
+    query_vector = result["embeddings"][0]
+    try:
+        hits = qdrant_search(
+            query_vector=query_vector,
+            limit=body.top_k,
+            video_id=body.video_id,
+        )
+    except Exception as e:
+        return {"error": f"Qdrant search failed: {e}"}
+
+    return {
+        "query": body.query,
+        "top_k": body.top_k,
+        "results": hits,
+    }
+
+
 @app.post("/semantic-search")
 def semantic_search_endpoint(body: SemanticSearchBody):
     """Search corpus for texts most similar to query."""
@@ -174,18 +219,70 @@ def semantic_search_endpoint(body: SemanticSearchBody):
 
 @app.post("/embeddings")
 def embeddings_endpoint(body: EmbeddingsBody):
-    """Generate embeddings using gemini-embedding-001. Requires text or texts."""
-    if body.text is not None and body.texts is not None:
-        return {"error": "Provide either text or texts, not both"}
-    if body.text is None and (body.texts is None or len(body.texts) == 0):
-        return {"error": "Provide text or texts"}
-    texts = [body.text] if body.text is not None else body.texts
-    return create_embeddings(
+    """Load/process video, generate embeddings from transcript, save to Qdrant. Skips if already in Qdrant."""
+    from .get_metadata import _video_id
+
+    try:
+        vid = _video_id(body.video_id)
+    except ValueError as e:
+        return {"error": str(e)}
+
+    try:
+        if video_chunks_exist(vid):
+            return {
+                "video_id": vid,
+                "chunks_upserted": 0,
+                "collection": "video_chunks",
+                "skipped": True,
+                "reason": "Video embeddings already exist in Qdrant",
+            }
+    except Exception as e:
+        return {"error": f"Qdrant check failed: {e}"}
+
+    data = load_or_process_video(body.video_id)
+    transcript = data.get("transcript")
+    if not transcript:
+        return {"error": "Transcript not available for this video"}
+
+    texts = [s["text"] for s in transcript if s.get("text")]
+    if not texts:
+        return {"error": "No transcript text to embed"}
+
+    result = create_embeddings(
         texts=texts,
         task_type=body.task_type,
         output_dimensionality=body.output_dimensionality,
-        normalize=body.normalize,
+        normalize=True,
     )
+    embeddings = result["embeddings"]
+    metadata = data.get("metadata") or {}
+
+    payloads = [
+        {
+            "video_id": vid,
+            "titulo": metadata.get("titulo", ""),
+            "autor": metadata.get("autor", ""),
+            "canal_id": metadata.get("canal_id", ""),
+            "segment_text": seg["text"],
+            "start_ms": seg.get("start_ms", 0),
+            "thumbnail_url": metadata.get("thumbnail_url", ""),
+            "views": metadata.get("views", ""),
+            "duracao_segundos": metadata.get("duracao_segundos", 0),
+        }
+        for seg in transcript
+        if seg.get("text")
+    ]
+
+    try:
+        count = upsert_video_chunks(vid, embeddings, payloads)
+    except Exception as e:
+        return {"error": f"Qdrant upsert failed: {e}"}
+
+    return {
+        "video_id": vid,
+        "chunks_upserted": count,
+        "collection": "video_chunks",
+    }
 
 
 class ProcessBody(BaseModel):

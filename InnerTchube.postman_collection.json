@@ -102,7 +102,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\"text\": \"What is the meaning of life?\", \"task_type\": \"RETRIEVAL_DOCUMENT\", \"output_dimensionality\": 768}"
+          "raw": "{\"video_id\": \"dQw4w9WgXcQ\", \"task_type\": \"RETRIEVAL_DOCUMENT\", \"output_dimensionality\": 768}"
         },
         "url": {
           "raw": "http://127.0.0.1:8000/embeddings",
@@ -193,6 +193,25 @@
           "host": ["127", "0", "0", "1"],
           "port": "8000",
           "path": ["semantic-search"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "search-videos",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"query\": \"climate change\", \"top_k\": 5, \"video_id\": null, \"output_dimensionality\": 768}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/search-videos",
+          "protocol": "http",
+          "host": ["127", "0", "0", "1"],
+          "port": "8000",
+          "path": ["search-videos"]
         }
       },
       "response": []

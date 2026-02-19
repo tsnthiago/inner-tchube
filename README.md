@@ -35,11 +35,11 @@ docker run -p 8000:8000 -v $(pwd)/output:/app/output -v $(pwd)/monitored_channel
 Ou com Docker Compose:
 
 ```bash
-cp .env.example .env   # opcional, app funciona com defaults
+cp .env.example .env   # obrigatório: WEB_API_KEY, ANDROID_API_KEY
 docker compose up -d
 ```
 
-API em `http://localhost:8000`, docs em `/docs`. Qdrant em `http://localhost:6333`. Volumes: `output/`, `monitored_channels.json`, `qdrant_storage/`. A API conecta ao Qdrant via `QDRANT_URL=http://qdrant:6333` na rede interna.
+API em `http://localhost:8000`, docs em `/docs`. Qdrant em `http://localhost:6333`. Volumes: `output/`, `monitored_channels.json`, `qdrant_storage/`. A API usa `env_file: .env` e conecta ao Qdrant via `QDRANT_URL=http://qdrant:6333`.
 
 ## Usage
 
@@ -86,10 +86,8 @@ for item in result["items"]:
 result = analyze_transcript("dQw4w9WgXcQ", "Summarize this video")
 print(result["text"])
 
-# Embeddings (returns {embeddings, dimensions, count}, requires GEMINI_API_KEY)
-from src.embeddings import create_embeddings
-result = create_embeddings("What is the meaning of life?", task_type="RETRIEVAL_DOCUMENT", output_dimensionality=768)
-print(len(result["embeddings"][0]), "dimensions")
+# Embeddings (POST /embeddings with video_id: load/process, embed transcript, save to Qdrant)
+# Use the API: POST /embeddings with body {"video_id": "dQw4w9WgXcQ"}
 ```
 
 ### Command Line
@@ -118,7 +116,7 @@ python -m uvicorn src.api:app --reload --host 127.0.0.1 --port 8000
 
 Server at `http://127.0.0.1:8000`. If port 8000 fails (WinError 10013), try `--port 8080`. Interactive docs at `/docs`.
 
-**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, channel-from-video, embeddings, semantic-similarity, classify, cluster, semantic-search, process, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
+**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, channel-from-video, embeddings, search-videos, semantic-similarity, classify, cluster, semantic-search, process, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
 
 curl examples:
 
@@ -153,9 +151,11 @@ curl "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top&continuation
 # Analyze transcript (Gemini)
 curl "http://127.0.0.1:8000/analyze-transcript?url_or_id=dQw4w9WgXcQ&prompt=Summarize%20this%20video"
 
-# Embeddings (gemini-embedding-001, requires GEMINI_API_KEY)
-curl -X POST "http://127.0.0.1:8000/embeddings" -H "Content-Type: application/json" -d "{\"text\": \"What is the meaning of life?\"}"
-curl -X POST "http://127.0.0.1:8000/embeddings" -H "Content-Type: application/json" -d "{\"texts\": [\"doc1\", \"doc2\"], \"task_type\": \"RETRIEVAL_DOCUMENT\", \"output_dimensionality\": 768}"
+# Embeddings (video_id: load/process, embed transcript, save to Qdrant; requires GEMINI_API_KEY, Qdrant)
+curl -X POST "http://127.0.0.1:8000/embeddings" -H "Content-Type: application/json" -d "{\"video_id\": \"dQw4w9WgXcQ\", \"output_dimensionality\": 768}"
+
+# Search videos (semantic search over Qdrant)
+curl -X POST "http://127.0.0.1:8000/search-videos" -H "Content-Type: application/json" -d "{\"query\": \"climate change\", \"top_k\": 5}"
 
 # Semantic similarity (cosine similarity matrix)
 curl -X POST "http://127.0.0.1:8000/semantic-similarity" -H "Content-Type: application/json" -d "{\"texts\": [\"What is life?\", \"What is existence?\", \"How to bake a cake?\"]}"
@@ -182,6 +182,7 @@ The `/process` endpoint fetches metadata, transcript, and comments for videos/ch
 - **monitored_channels.json**: List of channel IDs to monitor, e.g. `["UCxxx...", "UCyyy..."]`
 - **MONITORED_CHANNELS** (env): Comma-separated channel IDs (overrides file)
 - **output/**: `output/videos/{video_id}.json`, `output/channels/{channel_id}.json`
+- **Transcript, metadata, comments, analyze-transcript, embeddings:** Check `output/` first; if data exists, load from file; otherwise fetch from API and save.
 
 ## Config
 
@@ -203,6 +204,7 @@ innertube/
 │   ├── get_comments.py
 │   ├── analyze_transcript.py
 │   ├── embeddings.py
+│   ├── qdrant_store.py
 │   ├── semantic.py
 │   ├── process.py
 │   ├── scheduler.py
@@ -223,7 +225,7 @@ innertube/
 
 ## Limitations
 
-- **Embeddings:** Requires `GEMINI_API_KEY`; uses gemini-embedding-001 (rate limits apply).
+- **Embeddings:** Requires `GEMINI_API_KEY` and Qdrant; loads/processes video from `output/`; embeds transcript segments and saves to Qdrant.
 - **Transcript:** Only videos with captions (manual or auto-generated).
 - **Metadata:** Structure may change if YouTube updates InnerTube.
 - **Comments:** On some videos `autor` and `texto` may be empty; pagination via `continuation` works.
