@@ -1,5 +1,7 @@
 requests
+httpx>=0.23.3,<0.24.0
 innertube
+google-genai
 python-dotenv
 fastapi
 uvicorn[standard]

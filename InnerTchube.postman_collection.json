@@ -257,6 +257,38 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "analyze-transcript",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/analyze-transcript?url_or_id=dQw4w9WgXcQ&prompt=Summarize%20this%20video",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "analyze-transcript"
+          ],
+          "query": [
+            {
+              "key": "url_or_id",
+              "value": "dQw4w9WgXcQ"
+            },
+            {
+              "key": "prompt",
+              "value": "Summarize this video"
+            }
+          ]
+        }
+      },
+      "response": []
     }
   ]
 }

@@ -9,6 +9,7 @@ from .get_metadata import get_metadata
 from .search import search
 from .get_channel_videos import get_channel_videos
 from .get_comments import get_comments
+from .analyze_transcript import analyze_transcript
 
 app = FastAPI(title="InnerTube API")
 
@@ -47,3 +48,12 @@ def comments(
     continuation: str | None = Query(None, description="Continuation token"),
 ):
     return get_comments(url_or_id, sort=sort, continuation=continuation)
+
+
+@app.get("/analyze-transcript")
+def analyze_transcript_endpoint(
+    url_or_id: str = Query(..., description="Video URL or ID"),
+    prompt: str = Query(..., description="Instruction for Gemini (e.g. Summarize this video)"),
+    model: str | None = Query(None, description="Gemini model override"),
+):
+    return analyze_transcript(url_or_id, prompt, model=model)

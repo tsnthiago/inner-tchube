@@ -5,7 +5,7 @@ Python modules to fetch YouTube transcripts, metadata, search, channel videos, a
 ```mermaid
 flowchart LR
     User[User] --> Entry[CLI / Library / API]
-    Entry --> Modules[transcript, metadata, search, channel_videos, comments]
+    Entry --> Modules[transcript, metadata, search, channel_videos, comments, analyze_transcript]
     Modules --> InnerTube[InnerTube API]
     InnerTube --> YouTube[YouTube]
 ```
@@ -18,7 +18,7 @@ flowchart LR
 pip install -r requirements.txt
 ```
 
-Copy `.env.example` to `.env` and adjust if needed (defaults work out of the box).
+Copy `.env.example` to `.env` and adjust if needed (defaults work out of the box). Note: `httpx` is pinned for innertube compatibility.
 
 ## Usage
 
@@ -30,6 +30,7 @@ from src.get_metadata import get_metadata
 from src.search import search
 from src.get_channel_videos import get_channel_videos
 from src.get_comments import get_comments
+from src.analyze_transcript import analyze_transcript
 
 # Transcript (returns list of {text, start_ms})
 segments = get_transcript("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
@@ -54,6 +55,10 @@ for item in result["items"]:
 result = get_comments("dQw4w9WgXcQ", sort="top")
 for item in result["items"]:
     print(f"[{item['autor']}] {item['texto']}")
+
+# Analyze transcript with Gemini (returns {text, usage?})
+result = analyze_transcript("dQw4w9WgXcQ", "Summarize this video")
+print(result["text"])
 ```
 
 ### Command Line
@@ -64,6 +69,7 @@ python -m src.get_metadata dQw4w9WgXcQ
 python -m src.search "arctic monkeys" --type video
 python -m src.get_channel_videos UCXuqSBlHAE6Xw-yeJA0Tunw
 python -m src.get_comments dQw4w9WgXcQ --sort top
+python -m src.analyze_transcript dQw4w9WgXcQ "Summarize this video"
 ```
 
 ## Test 
@@ -75,22 +81,47 @@ python -m src.test_all
 ## API
 
 ```bash
-python -m uvicorn src.api:app --reload
+python -m uvicorn src.api:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Server at `http://127.0.0.1:8000`. Interactive docs at `/docs`.
+Server at `http://127.0.0.1:8000`. If port 8000 fails (WinError 10013), try `--port 8080`. Interactive docs at `/docs`.
 
-**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, search, channel-videos, comments) with ready-made examples. The collection includes requests with and without pagination (continuation).
+**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
 
-curl example:
+curl examples:
 
 ```bash
+# Transcript
 curl "http://127.0.0.1:8000/transcript?url_or_id=dQw4w9WgXcQ"
+
+# Metadata
+curl "http://127.0.0.1:8000/metadata?url_or_id=dQw4w9WgXcQ"
+
+# Search (video|channel|playlist|film)
+curl "http://127.0.0.1:8000/search?q=arctic%20monkeys&type=video"
+
+# Search with continuation
+curl "http://127.0.0.1:8000/search?q=arctic%20monkeys&type=video&continuation=TOKEN"
+
+# Channel videos
+curl "http://127.0.0.1:8000/channel-videos?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw"
+
+# Channel videos with continuation
+curl "http://127.0.0.1:8000/channel-videos?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw&continuation=TOKEN"
+
+# Comments (top|newest)
+curl "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top"
+
+# Comments with continuation
+curl "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top&continuation=TOKEN"
+
+# Analyze transcript (Gemini)
+curl "http://127.0.0.1:8000/analyze-transcript?url_or_id=dQw4w9WgXcQ&prompt=Summarize%20this%20video"
 ```
 
 ## Config
 
-Parameters (API keys, versions, timeout) in `.env`. Copy `.env.example` to `.env`.
+Parameters (API keys, versions, timeout, GEMINI_API_KEY, GEMINI_MODEL, GEMINI_COST_PER_1M_INPUT, GEMINI_COST_PER_1M_OUTPUT) in `.env`. Copy `.env.example` to `.env`. Set `GEMINI_API_KEY` for `analyze_transcript`. Cost vars are optional (for usage estimation).
 
 Functions accept full URLs or video ID (11 chars): `https://www.youtube.com/watch?v=VIDEO_ID`, `https://youtu.be/VIDEO_ID`, `dQw4w9WgXcQ`.
 
@@ -105,6 +136,7 @@ innertube/
 │   ├── search.py
 │   ├── get_channel_videos.py
 │   ├── get_comments.py
+│   ├── analyze_transcript.py
 │   ├── config.py
 │   ├── test_all.py
 │   └── api.py
@@ -119,6 +151,7 @@ innertube/
 - **Transcript:** Only videos with captions (manual or auto-generated).
 - **Metadata:** Structure may change if YouTube updates InnerTube.
 - **Comments:** On some videos `autor` and `texto` may be empty; pagination via `continuation` works.
+- **Analyze transcript:** Requires `GEMINI_API_KEY`; uses Gemini API (rate limits apply).
 
 ## License
 
