@@ -114,14 +114,13 @@ def get_comments(url_or_id: str, sort: str = "top", continuation: str | None = N
 
     for ep in data.get("onResponseReceivedEndpoints", []):
         cont_items = ep.get("reloadContinuationItemsCommand", {}).get("continuationItems") or ep.get("appendContinuationItemsAction", {}).get("continuationItems", [])
-        for ci in cont_items[:-1]:
+        for ci in cont_items:
             if "commentThreadRenderer" in ci:
                 parsed = _parse_comment({"commentThreadRenderer": ci["commentThreadRenderer"]}, entity_map)
                 if parsed:
                     items.append(parsed)
-        if cont_items:
-            cir = cont_items[-1].get("continuationItemRenderer", {})
-            if cir:
+            elif "continuationItemRenderer" in ci:
+                cir = ci["continuationItemRenderer"]
                 cont_token = cir.get("continuationEndpoint", {}).get("continuationCommand", {}).get("token")
 
     return {"items": items, "continuation": cont_token}

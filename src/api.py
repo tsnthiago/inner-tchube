@@ -1,10 +1,13 @@
 """FastAPI wrapper for InnerTube functions."""
 
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from . import config  # noqa: F401 - load .env
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from .get_channel_from_video import get_channel_from_video
@@ -30,6 +33,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="InnerTube API", lifespan=lifespan)
+
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+    @app.get("/")
+    def index():
+        return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.get("/transcript")

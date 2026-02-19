@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InnerTube API</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 1rem; background: #1a1a2e; color: #eee; max-width: 900px; margin-inline: auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+    h2 { font-size: 1.1rem; margin: 0; cursor: pointer; padding: 0.75rem 1rem; background: #16213e; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    h2:hover { background: #1f3460; }
+    h2::after { content: "−"; font-weight: bold; }
+    h2.collapsed::after { content: "+"; }
+    section { margin-bottom: 0.5rem; }
+    .panel { padding: 1rem; background: #0f3460; border-radius: 0 0 6px 6px; border: 1px solid #16213e; border-top: none; }
+    .panel.collapsed { display: none; }
+    .form-group { margin-bottom: 0.75rem; }
+    label { display: block; font-size: 0.85rem; margin-bottom: 0.25rem; color: #a0a0a0; }
+    input, select, textarea { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #333; background: #1a1a2e; color: #eee; font-size: 0.9rem; }
+    textarea { min-height: 60px; resize: vertical; }
+    button { padding: 0.5rem 1rem; border-radius: 4px; border: none; background: #e94560; color: white; cursor: pointer; font-weight: 500; }
+    button:hover { background: #ff6b6b; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary { background: #533483; }
+    .btn-secondary:hover { background: #6b4a9e; }
+    .result { margin-top: 1rem; padding: 1rem; background: #0d0d1a; border-radius: 4px; font-family: monospace; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all; max-height: 400px; overflow-y: auto; }
+    .result.error { border-left: 4px solid #e94560; }
+    .loading { opacity: 0.7; pointer-events: none; }
+    .endpoint { margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #16213e; }
+    .endpoint:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .endpoint h3 { font-size: 0.95rem; margin: 0 0 0.5rem 0; color: #e94560; }
+    .row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .row .form-group { flex: 1; min-width: 120px; }
+  </style>
+</head>
+<body>
+  <h1>InnerTube API – Interface</h1>
+
+  <section>
+    <h2>Vídeo</h2>
+    <div class="panel">
+      <div class="endpoint">
+        <h3>GET /transcript</h3>
+        <div class="form-group">
+          <label>URL ou ID do vídeo</label>
+          <input type="text" id="t-url" placeholder="https://youtube.com/watch?v=... ou dQw4w9WgXcQ" value="uDtH2mnY3nU">
+        </div>
+        <button type="button" onclick="apiGet('transcript', {url_or_id: byId('t-url').value}, this)">Executar</button>
+        <div id="t-result" class="result" style="display:none"></div>
+      </div>
+      <div class="endpoint">
+        <h3>GET /metadata</h3>
+        <div class="form-group">
+          <label>URL ou ID do vídeo</label>
+          <input type="text" id="m-url" placeholder="URL ou ID" value="uDtH2mnY3nU">
+        </div>
+        <button type="button" onclick="apiGet('metadata', {url_or_id: byId('m-url').value}, this)">Executar</button>
+        <div id="m-result" class="result" style="display:none"></div>
+      </div>
+      <div class="endpoint">
+        <h3>GET /channel-from-video</h3>
+        <div class="form-group">
+          <label>URL ou ID do vídeo</label>
+          <input type="text" id="cfv-url" placeholder="URL ou ID" value="uDtH2mnY3nU">
+        </div>
+        <button type="button" onclick="apiGet('channel-from-video', {url_or_id: byId('cfv-url').value}, this)">Executar</button>
+        <div id="cfv-result" class="result" style="display:none"></div>
+      </div>
+      <div class="endpoint">
+        <h3>GET /comments</h3>
+        <div class="row">
+          <div class="form-group">
+            <label>URL ou ID do vídeo</label>
+            <input type="text" id="c-url" placeholder="URL ou ID" value="uDtH2mnY3nU">
+          </div>
+          <div class="form-group">
+            <label>Ordenação</label>
+            <select id="c-sort"><option value="top">top</option><option value="newest">newest</option></select>
+          </div>
+          <div class="form-group">
+            <label>Continuation (opcional)</label>
+            <input type="text" id="c-cont" placeholder="Token da página anterior">
+          </div>
+        </div>
+        <button type="button" onclick="apiGet('comments', {url_or_id: byId('c-url').value, sort: byId('c-sort').value, continuation: byId('c-cont').value || undefined}, this)">Executar</button>
+        <button class="btn-secondary" id="c-more" onclick="loadMore('comments', {url_or_id: byId('c-url').value, sort: byId('c-sort').value}, this)">Carregar mais</button>
+        <div id="c-result" class="result" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Canal</h2>
+    <div class="panel">
+      <div class="endpoint">
+        <h3>GET /channel-videos</h3>
+        <div class="row">
+          <div class="form-group">
+            <label>ID, URL ou @handle do canal</label>
+            <input type="text" id="cv-channel" placeholder="UC... ou @handle" value="@alcenicorrea">
+          </div>
+          <div class="form-group">
+            <label>Continuation (opcional)</label>
+            <input type="text" id="cv-cont" placeholder="Token">
+          </div>
+        </div>
+        <button type="button" onclick="apiGet('channel-videos', {channel_id: byId('cv-channel').value, continuation: byId('cv-cont').value || undefined}, this)">Executar</button>
+        <button class="btn-secondary" id="cv-more" onclick="loadMore('channel-videos', {channel_id: byId('cv-channel').value}, this)">Carregar mais</button>
+        <div id="cv-result" class="result" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Busca</h2>
+    <div class="panel">
+      <div class="endpoint">
+        <h3>GET /search</h3>
+        <div class="row">
+          <div class="form-group">
+            <label>Query</label>
+            <input type="text" id="s-q" placeholder="Termo de busca" value="arctic monkeys">
+          </div>
+          <div class="form-group">
+            <label>Tipo</label>
+            <select id="s-type"><option value="video">video</option><option value="channel">channel</option><option value="playlist">playlist</option><option value="film">film</option></select>
+          </div>
+          <div class="form-group">
+            <label>Continuation (opcional)</label>
+            <input type="text" id="s-cont" placeholder="Token">
+          </div>
+        </div>
+        <button type="button" onclick="apiGet('search', {q: byId('s-q').value, type: byId('s-type').value, continuation: byId('s-cont').value || undefined}, this)">Executar</button>
+        <button class="btn-secondary" id="s-more" onclick="loadMore('search', {q: byId('s-q').value, type: byId('s-type').value}, this)">Carregar mais</button>
+        <div id="s-result" class="result" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Análise</h2>
+    <div class="panel">
+      <div class="endpoint">
+        <h3>GET /analyze-transcript</h3>
+        <div class="form-group">
+          <label>URL ou ID do vídeo</label>
+          <input type="text" id="at-url" placeholder="URL ou ID" value="uDtH2mnY3nU">
+        </div>
+        <div class="form-group">
+          <label>Prompt (instrução para Gemini)</label>
+          <input type="text" id="at-prompt" placeholder="Ex: Summarize this video" value="Summarize this video in 3 bullet points">
+        </div>
+        <div class="form-group">
+          <label>Modelo (opcional)</label>
+          <input type="text" id="at-model" placeholder="Deixe vazio para padrão">
+        </div>
+        <button type="button" onclick="apiGet('analyze-transcript', {url_or_id: byId('at-url').value, prompt: byId('at-prompt').value, model: byId('at-model').value || undefined}, this)">Executar</button>
+        <div id="at-result" class="result" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Processamento</h2>
+    <div class="panel">
+      <div class="endpoint">
+        <h3>GET /process</h3>
+        <p style="font-size:0.85rem;color:#a0a0a0;margin-bottom:0.5rem">Pode demorar vários minutos. Salva em output/.</p>
+        <div class="form-group">
+          <label>Vídeos (IDs ou URLs, separados por vírgula)</label>
+          <textarea id="p-videos" placeholder="dQw4w9WgXcQ, https://..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Canais (IDs, URLs ou @handle, separados por vírgula)</label>
+          <textarea id="p-channels" placeholder="@alcenicorrea, UC..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Max vídeos por canal</label>
+          <input type="number" id="p-max" value="20" min="1">
+        </div>
+        <button type="button" onclick="apiGet('process', {videos: byId('p-videos').value, channels: byId('p-channels').value, max_videos: byId('p-max').value}, this)">Executar</button>
+        <div id="p-result" class="result" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Embeddings</h2>
+    <div class="panel">
+      <div class="endpoint">
+        <h3>POST /embeddings</h3>
+        <div class="form-group">
+          <label>URL ou ID do vídeo</label>
+          <input type="text" id="e-video" placeholder="URL ou ID" value="uDtH2mnY3nU">
+        </div>
+        <button type="button" onclick="apiPost('embeddings', {video_id: byId('e-video').value}, this)">Executar</button>
+        <div id="e-result" class="result" style="display:none"></div>
+      </div>
+      <div class="endpoint">
+        <h3>POST /search-videos</h3>
+        <div class="row">
+          <div class="form-group">
+            <label>Query</label>
+            <input type="text" id="sv-q" placeholder="Busca semântica" value="design e diferenciação">
+          </div>
+          <div class="form-group">
+            <label>Top K</label>
+            <input type="number" id="sv-k" value="5" min="1">
+          </div>
+          <div class="form-group">
+            <label>Video ID (opcional, filtrar)</label>
+            <input type="text" id="sv-vid" placeholder="Deixe vazio para todos">
+          </div>
+        </div>
+        <button type="button" onclick="apiPost('search-videos', {query: byId('sv-q').value, top_k: parseInt(byId('sv-k').value), video_id: byId('sv-vid').value || null}, this)">Executar</button>
+        <div id="sv-result" class="result" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Semântico</h2>
+    <div class="panel">
+      <div class="endpoint">
+        <h3>POST /semantic-similarity</h3>
+        <div class="form-group">
+          <label>Textos (um por linha)</label>
+          <textarea id="ss-texts">What is life?
+What is existence?
+How to bake a cake?</textarea>
+        </div>
+        <button type="button" onclick="apiPost('semantic-similarity', {texts: byId('ss-texts').value.split('\n').filter(Boolean), output_dimensionality: 768}, this)">Executar</button>
+        <div id="ss-result" class="result" style="display:none"></div>
+      </div>
+      <div class="endpoint">
+        <h3>POST /classify</h3>
+        <div class="form-group">
+          <label>Textos (um por linha)</label>
+          <textarea id="cl-texts">I love this product
+This is spam</textarea>
+        </div>
+        <div class="form-group">
+          <label>Labels (separados por vírgula)</label>
+          <input type="text" id="cl-labels" value="positive, negative, spam">
+        </div>
+        <button type="button" onclick="apiPost('classify', {texts: byId('cl-texts').value.split('\n').filter(Boolean), labels: byId('cl-labels').value.split(',').map(s=>s.trim()).filter(Boolean), output_dimensionality: 768}, this)">Executar</button>
+        <div id="cl-result" class="result" style="display:none"></div>
+      </div>
+      <div class="endpoint">
+        <h3>POST /cluster</h3>
+        <div class="form-group">
+          <label>Textos (um por linha)</label>
+          <textarea id="cu-texts">doc about AI
+doc about sports
+doc about AI
+doc about food</textarea>
+        </div>
+        <div class="form-group">
+          <label>N clusters</label>
+          <input type="number" id="cu-n" value="2" min="2">
+        </div>
+        <button type="button" onclick="apiPost('cluster', {texts: byId('cu-texts').value.split('\n').filter(Boolean), n_clusters: parseInt(byId('cu-n').value), output_dimensionality: 768}, this)">Executar</button>
+        <div id="cu-result" class="result" style="display:none"></div>
+      </div>
+      <div class="endpoint">
+        <h3>POST /semantic-search</h3>
+        <div class="form-group">
+          <label>Query</label>
+          <input type="text" id="ses-q" value="climate change">
+        </div>
+        <div class="form-group">
+          <label>Corpus (um por linha)</label>
+          <textarea id="ses-corpus">AI helps address climate challenges
+Sports news today
+Weather report</textarea>
+        </div>
+        <div class="form-group">
+          <label>Top K</label>
+          <input type="number" id="ses-k" value="2" min="1">
+        </div>
+        <button type="button" onclick="apiPost('semantic-search', {query: byId('ses-q').value, corpus: byId('ses-corpus').value.split('\n').filter(Boolean), top_k: parseInt(byId('ses-k').value), output_dimensionality: 768}, this)">Executar</button>
+        <div id="ses-result" class="result" style="display:none"></div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function byId(id) { return document.getElementById(id); }
+
+    function showResult(elId, data, isError) {
+      const el = byId(elId);
+      if (!el) return;
+      el.style.display = 'block';
+      el.className = 'result' + (isError ? ' error' : '');
+      el.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+    }
+
+    function setLoading(btn, loading) {
+      if (!btn) return;
+      btn.disabled = loading;
+      const defaultText = btn.dataset.defaultText || 'Executar';
+      if (!btn.dataset.defaultText) btn.dataset.defaultText = btn.textContent;
+      btn.textContent = loading ? 'Aguarde...' : defaultText;
+    }
+
+    const RESULT_IDS = { transcript:'t', metadata:'m', 'channel-from-video':'cfv', comments:'c', 'channel-videos':'cv', search:'s', 'analyze-transcript':'at', process:'p', embeddings:'e', 'search-videos':'sv', 'semantic-similarity':'ss', classify:'cl', cluster:'cu', 'semantic-search':'ses' };
+
+    async function apiGet(endpoint, params, btn, append) {
+      const q = new URLSearchParams();
+      for (const [k, v] of Object.entries(params)) {
+        if (v !== undefined && v !== null && v !== '') q.set(k, v);
+      }
+      const url = '/' + endpoint + (q.toString() ? '?' + q : '');
+      const button = btn || event?.target;
+      if (button) setLoading(button, true);
+      const rid = (RESULT_IDS[endpoint] || endpoint) + '-result';
+      try {
+        const res = await fetch(url);
+        const data = await res.json().catch(async () => ({ detail: await res.text() }));
+        if (!res.ok) {
+          showResult(rid, data.detail || data, true);
+        } else {
+          let toShow = data;
+          if (append && Array.isArray(data.items)) {
+            const el = byId(rid);
+            if (el && el.textContent) {
+              try {
+                const prev = JSON.parse(el.textContent);
+                if (Array.isArray(prev.items)) {
+                  toShow = { ...data, items: prev.items.concat(data.items) };
+                }
+              } catch (_) {}
+            }
+          }
+          showResult(rid, toShow);
+          const contInput = byId(endpoint === 'comments' ? 'c-cont' : endpoint === 'channel-videos' ? 'cv-cont' : 's-cont');
+          if (contInput) contInput.value = data.continuation || '';
+        }
+      } catch (e) {
+        showResult(rid, 'Erro: ' + e.message, true);
+      } finally {
+        if (button) setLoading(button, false);
+      }
+    }
+
+    async function apiPost(endpoint, body, btn) {
+      const button = btn || event?.target;
+      if (button) setLoading(button, true);
+      const rid = (RESULT_IDS[endpoint] || endpoint) + '-result';
+      try {
+        const res = await fetch('/' + endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json().catch(async () => ({ detail: await res.text() }));
+        if (!res.ok) {
+          showResult(rid, data.detail || data, true);
+        } else {
+          showResult(rid, data);
+        }
+      } catch (e) {
+        showResult(rid, 'Erro: ' + e.message, true);
+      } finally {
+        if (button) setLoading(button, false);
+      }
+    }
+
+    async function loadMore(endpoint, baseParams, btn) {
+      const contId = endpoint === 'comments' ? 'c-cont' : endpoint === 'channel-videos' ? 'cv-cont' : 's-cont';
+      const cont = byId(contId)?.value;
+      if (!cont) {
+        const rid = (endpoint === 'comments' ? 'c' : endpoint === 'channel-videos' ? 'cv' : 's') + '-result';
+        showResult(rid, 'Execute primeiro para obter o token de continuação.', true);
+        return;
+      }
+      await apiGet(endpoint, { ...baseParams, continuation: cont }, btn, true);
+    }
+
+    document.querySelectorAll('section h2').forEach(h => {
+      h.addEventListener('click', () => {
+        h.classList.toggle('collapsed');
+        h.nextElementSibling.classList.toggle('collapsed');
+      });
+    });
+  </script>
+</body>
+</html>

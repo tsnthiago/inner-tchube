@@ -114,7 +114,7 @@ python -m src.test_all
 python -m uvicorn src.api:app --reload --host 127.0.0.1 --port 8000
 ```
 
-Server at `http://127.0.0.1:8000`. If port 8000 fails (WinError 10013), try `--port 8080`. Interactive docs at `/docs`.
+Server at `http://127.0.0.1:8000`. If port 8000 fails (WinError 10013), try `--port 8080`. **Interface web** em `/`, docs interativos em `/docs`.
 
 **Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, channel-from-video, embeddings, search-videos, semantic-similarity, classify, cluster, semantic-search, process, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
 
@@ -197,6 +197,8 @@ Functions accept full URLs or IDs: videos `https://www.youtube.com/watch?v=VIDEO
 
 ```
 innertube/
+├── static/
+│   └── index.html       # Interface web para todos os endpoints
 ├── src/
 │   ├── get_transcript.py
 │   ├── get_metadata.py

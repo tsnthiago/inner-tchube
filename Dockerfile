@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app code
 COPY src/ src/
+COPY static/ static/
 COPY monitored_channels.json .
 
 ENV PYTHONUNBUFFERED=1
