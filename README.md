@@ -17,11 +17,11 @@ Copy `.env.example` to `.env` and adjust if needed (defaults work out of the box
 ### As a Library
 
 ```python
-from get_transcript import get_transcript
-from get_metadata import get_metadata
-from search import search
-from get_channel_videos import get_channel_videos
-from get_comments import get_comments
+from src.get_transcript import get_transcript
+from src.get_metadata import get_metadata
+from src.search import search
+from src.get_channel_videos import get_channel_videos
+from src.get_comments import get_comments
 
 # Transcript (returns list of {text, start_ms})
 segments = get_transcript("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
@@ -51,27 +51,26 @@ for item in result["items"]:
 ### Command Line
 
 ```bash
-# Transcript (prints text line by line)
-python get_transcript.py https://youtube.com/watch?v=dQw4w9WgXcQ
-python get_transcript.py dQw4w9WgXcQ
+# Transcript
+python -m src.get_transcript dQw4w9WgXcQ
 
-# Metadata (prints all fields)
-python get_metadata.py dQw4w9WgXcQ
+# Metadata
+python -m src.get_metadata dQw4w9WgXcQ
 
 # Search
-python search.py "arctic monkeys" --type video
+python -m src.search "arctic monkeys" --type video
 
 # Channel videos
-python get_channel_videos.py UCXuqSBlHAE6Xw-yeJA0Tunw
+python -m src.get_channel_videos UCXuqSBlHAE6Xw-yeJA0Tunw
 
 # Comments
-python get_comments.py dQw4w9WgXcQ --sort top
+python -m src.get_comments dQw4w9WgXcQ --sort top
 ```
 
 ## Test
 
 ```bash
-python test_all.py
+python -m src.test_all
 ```
 
 Runs all functions with real videos and prints results.
@@ -79,10 +78,38 @@ Runs all functions with real videos and prints results.
 ## API
 
 ```bash
-uvicorn api:app --reload
+python -m uvicorn src.api:app --reload
 ```
 
-Endpoints: `GET /transcript`, `/metadata`, `/search`, `/channel-videos`, `/comments`. See `/docs` for parameters.
+Server runs at `http://127.0.0.1:8000`. See `/docs` for interactive docs.
+
+### curl examples
+
+```bash
+# Transcript
+curl "http://127.0.0.1:8000/transcript?url_or_id=dQw4w9WgXcQ"
+
+# Metadata
+curl "http://127.0.0.1:8000/metadata?url_or_id=dQw4w9WgXcQ"
+
+# Search (video|channel|playlist|film)
+curl "http://127.0.0.1:8000/search?q=arctic%20monkeys&type=video"
+
+# Search with continuation (use token from previous response)
+curl "http://127.0.0.1:8000/search?q=arctic%20monkeys&type=video&continuation=TOKEN"
+
+# Channel videos
+curl "http://127.0.0.1:8000/channel-videos?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw"
+
+# Channel videos with continuation
+curl "http://127.0.0.1:8000/channel-videos?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw&continuation=TOKEN"
+
+# Comments (top|newest)
+curl "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top"
+
+# Comments with continuation
+curl "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top&continuation=TOKEN"
+```
 
 ## Config
 
@@ -94,20 +121,24 @@ Functions accept:
 
 ---
 
-## Files
+## Structure
 
-| File | Description |
-|------|--------------|
-| `get_transcript.py` | Transcript via HTTP. Prefers ASR. |
-| `get_metadata.py` | Metadata via HTTP. |
-| `get_transcript_lib.py` | Transcript via innertube. |
-| `search.py` | Search via innertube. |
-| `get_channel_videos.py` | Channel videos via innertube. |
-| `get_comments.py` | Comments via innertube. |
-| `config.py` | Loads `.env`. |
-| `test_all.py` | Integration test. |
-| `api.py` | FastAPI wrapper. |
-| `.env.example` | Config template. |
+```
+innertube/
+├── src/
+│   ├── get_transcript.py    # Transcript via HTTP. Prefers ASR.
+│   ├── get_metadata.py      # Metadata via HTTP.
+│   ├── get_transcript_lib.py
+│   ├── search.py
+│   ├── get_channel_videos.py
+│   ├── get_comments.py
+│   ├── config.py            # Loads .env from project root
+│   ├── test_all.py
+│   └── api.py
+├── .env.example
+├── requirements.txt
+└── README.md
+```
 
 ---
 

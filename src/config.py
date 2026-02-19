@@ -1,9 +1,11 @@
 """Load env and expose config."""
 
+from pathlib import Path
+
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 BASE_URL = os.getenv("BASE_URL", "https://youtubei.googleapis.com/youtubei/v1")
 WEB_API_KEY = os.getenv("WEB_API_KEY", "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8")

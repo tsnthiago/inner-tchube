@@ -4,7 +4,7 @@ import argparse
 import re
 import sys
 
-from config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
+from .config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
 from innertube import InnerTube
 
 COMMENTS_SECTION = "engagement-panel-comments-section"
@@ -58,7 +58,6 @@ def _extract_token_from_contents(next_data: dict) -> str | None:
 
 
 def _build_entity_map(data: dict) -> dict[str, dict]:
-    """Build commentKey -> commentEntityPayload from frameworkUpdates."""
     out = {}
     mutations = data.get("frameworkUpdates", {}).get("entityBatchUpdate", {}).get("mutations", [])
     for m in mutations:
@@ -95,10 +94,7 @@ def _parse_comment(thread: dict, entity_map: dict | None = None) -> dict | None:
 
 
 def get_comments(url_or_id: str, sort: str = "top", continuation: str | None = None) -> dict:
-    """
-    Returns video comments. sort: top|newest.
-    Returns: {"items": [{"autor", "texto", "likes"}], "continuation": str|None}
-    """
+    """Returns video comments. sort: top|newest."""
     video_id = _video_id(url_or_id)
     client = InnerTube(INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION)
     sort_title = "Newest" if sort.lower() == "newest" else "Top"

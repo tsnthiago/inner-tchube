@@ -1,12 +1,12 @@
 """Integration test: runs all functions with real videos."""
 
-import config  # noqa: F401 - load .env
+from . import config  # noqa: F401 - load .env
 
-from get_transcript import get_transcript
-from get_metadata import get_metadata
-from search import search
-from get_channel_videos import get_channel_videos
-from get_comments import get_comments
+from .get_transcript import get_transcript
+from .get_metadata import get_metadata
+from .search import search
+from .get_channel_videos import get_channel_videos
+from .get_comments import get_comments
 
 VIDEO_ID = "dQw4w9WgXcQ"
 CHANNEL_ID = "UCXuqSBlHAE6Xw-yeJA0Tunw"

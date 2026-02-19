@@ -1,14 +1,14 @@
 """FastAPI wrapper for InnerTube functions."""
 
-import config  # noqa: F401 - load .env
+from . import config  # noqa: F401 - load .env
 
 from fastapi import FastAPI, Query
 
-from get_transcript import get_transcript
-from get_metadata import get_metadata
-from search import search
-from get_channel_videos import get_channel_videos
-from get_comments import get_comments
+from .get_transcript import get_transcript
+from .get_metadata import get_metadata
+from .search import search
+from .get_channel_videos import get_channel_videos
+from .get_comments import get_comments
 
 app = FastAPI(title="InnerTube API")
 

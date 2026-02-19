@@ -5,7 +5,7 @@ import sys
 
 import requests
 
-from config import BASE_URL, CLIENT_VERSION, METADATA_GL, METADATA_HL, TIMEOUT, WEB_API_KEY
+from .config import BASE_URL, CLIENT_VERSION, METADATA_GL, METADATA_HL, TIMEOUT, WEB_API_KEY
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -82,7 +82,7 @@ def _video_id(url_or_id: str) -> str:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python get_metadata.py <url or video id>")
+        print("Usage: python -m src.get_metadata <url or video id>")
         sys.exit(1)
     try:
         for k, v in get_metadata(sys.argv[1]).items():

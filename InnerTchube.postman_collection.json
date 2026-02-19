@@ -1,0 +1,262 @@
+{
+  "info": {
+    "_postman_id": "2ec8e5db-e674-4eca-91e8-79c87ed02183",
+    "name": "InnerTchube",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "6117047"
+  },
+  "item": [
+    {
+      "name": "get-transcript",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/transcript?url_or_id=dQw4w9WgXcQ",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "transcript"
+          ],
+          "query": [
+            {
+              "key": "url_or_id",
+              "value": "dQw4w9WgXcQ"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get-metadata",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/metadata?url_or_id=dQw4w9WgXcQ",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "metadata"
+          ],
+          "query": [
+            {
+              "key": "url_or_id",
+              "value": "dQw4w9WgXcQ"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "search",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/search?q=chatgpt&type=video",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "chatgpt"
+            },
+            {
+              "key": "type",
+              "value": "video"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "search-continuation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/search?q=arctic%20monkeys&type=video&continuation=EpwDEgdjaGF0Z3B0GpADRWdJUUFVZ1VnZ0VMTjNwUVVWWXhRbE5JWDJ1Q0FRdFdVbXBuVG1kS2JYTXpVWUlCQzNsU1dXeE5WRVpqUzFwQmdnRUxkazg1V2pWNldGTnVhR3VDQVF0SFlXWmZha051UVRadFk0SUJDMnh2ZFdwaFpVSjVPSEF3Z2dFTFJFTXhkVmRTY1VZeVdXT0NBUXMzZUZSSFRrNU1VSGxOU1lJQkN6WnpTalV3V1dKd05EUkpnZ0VMUW01cldWbENWa3hLU2pDQ0FRdG9UMlV3YldGWFQyaHdPSUlCQzFGc2RIQjRlVWQ0YlZSWmdnRUxhbE00WnpsamJtWjJWSE9DQVF0WFZFWTFjWEJvZVhrNGQ0SUJDMk42ZDNwWllpMTVNVE00Z2dFTFltdE5MV3haWjBGNGFEQ0NBUXMxVFZkVVgyUnZielk0YTRJQkN6VkRTM1ZwZFdNMVkwcE5nZ0VMUVZodU1saFdUR1kzWkRDQ0FRdEhhV0ZPY0RCMVgzTjNWYklCQmdvRUNCWVFBZyUzRCUzRBiB4OgYIgtzZWFyY2gtZmVlZA%3D%3D",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "search"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "arctic%20monkeys"
+            },
+            {
+              "key": "type",
+              "value": "video"
+            },
+            {
+              "key": "continuation",
+              "value": "EpwDEgdjaGF0Z3B0GpADRWdJUUFVZ1VnZ0VMTjNwUVVWWXhRbE5JWDJ1Q0FRdFdVbXBuVG1kS2JYTXpVWUlCQzNsU1dXeE5WRVpqUzFwQmdnRUxkazg1V2pWNldGTnVhR3VDQVF0SFlXWmZha051UVRadFk0SUJDMnh2ZFdwaFpVSjVPSEF3Z2dFTFJFTXhkVmRTY1VZeVdXT0NBUXMzZUZSSFRrNU1VSGxOU1lJQkN6WnpTalV3V1dKd05EUkpnZ0VMUW01cldWbENWa3hLU2pDQ0FRdG9UMlV3YldGWFQyaHdPSUlCQzFGc2RIQjRlVWQ0YlZSWmdnRUxhbE00WnpsamJtWjJWSE9DQVF0WFZFWTFjWEJvZVhrNGQ0SUJDMk42ZDNwWllpMTVNVE00Z2dFTFltdE5MV3haWjBGNGFEQ0NBUXMxVFZkVVgyUnZielk0YTRJQkN6VkRTM1ZwZFdNMVkwcE5nZ0VMUVZodU1saFdUR1kzWkRDQ0FRdEhhV0ZPY0RCMVgzTjNWYklCQmdvRUNCWVFBZyUzRCUzRBiB4OgYIgtzZWFyY2gtZmVlZA%3D%3D"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "channel-videos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/channel-videos?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "channel-videos"
+          ],
+          "query": [
+            {
+              "key": "channel_id",
+              "value": "UCXuqSBlHAE6Xw-yeJA0Tunw"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "channel-videos-continuation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/channel-videos?channel_id=UCXuqSBlHAE6Xw-yeJA0Tunw&continuation=4qmFsgLZCBIYVUNYdXFTQmxIQUU2WHcteWVKQTBUdW53GrwIOGdhcEJocW1CbnFqQmlBRU9wNEdDaVEyWVRnek5UY3pPQzB3TURBd0xUSmtPVEl0WWpSbU5pMDFPREkwTWpsaFpUVmpNemdTOHdWQlUwOXZlV3ROUlZKS1ZEWk9jalZpZEU1elVUWTFPQzFoV1VzeWJXeDFjVTlLWDFrd1IxWm9OelpOY2tST2RsazNOemg2ZHpsYWRVMWhkMk5JVFRKUVFXZGZhRzB6Ym14RVNreFdiVWhHY25neVRETk1TVzlNU1RSTU5qYzNVVTU1Y2taV2Vrc3dVR2t6VmpGb1pqRTBZVk40T0ZoWVlqWk5VekZDVTIxVldIcHJkbU5KZWpoa1ZYRnpZemRHVGtad2NFSlhOMlJ3U0V4WWMzQmZVbFkwTURkRU9UVklRVkZwUVhKSExVcFpiR0ppVG1nNFlVZFhRMk51UjNaVVFYUmtNRXRyU25CbFJYVlBhMUJtZVV4a1UwWkNiRlJKTldNeVpqWnBhM0IxYTB0Nk0wNVJZek5MUzJaNFdFRkJUVlUxUkVsQ09EWnJkVGRFV25wU01qUjFaRGwzUmtoQmJFZE9jak5RUVZGS2NuZGphMU5GYkU1dWNqWjBUMVJOTFhRMGNFUkZSVTVVY0RCb2NtZEZVVTloUjNSTlprTmpTMWR2ZUY5c2JuWkxZbTlIYkdjd1RXWlNTV3hoTmxkU2RtVlRXRzl5YWkxaE5GOWpibnBaVmpWc1UwbDZVM3A1ZDNCNWFGWXdOWFZpVkZOcVJEVTRjbkpZV1VsclpXeElNR1ZaY0hCd1NreE9WRTl1TFRkb1JGcEZXazFPTkRONlVrSm5RamN3WmpScFRVOHdYMGR0YW5KdU9YTkZWVkpxYlU1UWNVeDBXRFJGYzBWWGNEZ3daR1Y2UjFNdFdtTk1ZelJXV0dkeE9FVlhVamxuWDBGc1oybE5jbTR3UVVGU2NtVlVjazU1UW5sbUxURXpla2hOT1RKV1QyaGpUa3g0U1VSbmVsVk1ZekYxZUVaV1ExSnhMV0Z4YlVkbmFqazNTbVJxZGtWak0wTkVRMk53VjNab1FVTnNVVmN5YzJkM05sRmtOSEpuU1ZKek0yeFhTelZIYmtwRllUUnRlRVpwV0RKRGREZG1Uazl6VFd0bGRTMXpUSFJDTVhGbGFEQTBhMVJQYW1WQlNrcFJWRXBJYkRoSlRrTnFaMHBJTlZVMWEyMTRSRUV0Umw5NFlUZzVSVkpITTJwTldsRjZSVVZpYWtOalpIVmpRMnRKZUdoaFVWUmxZME4yYXpsSVlWVndWWEpKZFc0d2IzVXdWblZTZVVGNVptMW9TRkkwVVVKd2MzQnNUekZWWXpaMmVrRkNZbEZrWVhSblkwcEJSWEZ2V2tNMFpreFhlbTFFTldodVZqSk5PVzFtV0ZSbFkxUnZMVzUzZHpOeVUxODNRM2M1YnhnRQ%3D%3D",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "channel-videos"
+          ],
+          "query": [
+            {
+              "key": "channel_id",
+              "value": "UCXuqSBlHAE6Xw-yeJA0Tunw"
+            },
+            {
+              "key": "continuation",
+              "value": "4qmFsgLZCBIYVUNYdXFTQmxIQUU2WHcteWVKQTBUdW53GrwIOGdhcEJocW1CbnFqQmlBRU9wNEdDaVEyWVRnek5UY3pPQzB3TURBd0xUSmtPVEl0WWpSbU5pMDFPREkwTWpsaFpUVmpNemdTOHdWQlUwOXZlV3ROUlZKS1ZEWk9jalZpZEU1elVUWTFPQzFoV1VzeWJXeDFjVTlLWDFrd1IxWm9OelpOY2tST2RsazNOemg2ZHpsYWRVMWhkMk5JVFRKUVFXZGZhRzB6Ym14RVNreFdiVWhHY25neVRETk1TVzlNU1RSTU5qYzNVVTU1Y2taV2Vrc3dVR2t6VmpGb1pqRTBZVk40T0ZoWVlqWk5VekZDVTIxVldIcHJkbU5KZWpoa1ZYRnpZemRHVGtad2NFSlhOMlJ3U0V4WWMzQmZVbFkwTURkRU9UVklRVkZwUVhKSExVcFpiR0ppVG1nNFlVZFhRMk51UjNaVVFYUmtNRXRyU25CbFJYVlBhMUJtZVV4a1UwWkNiRlJKTldNeVpqWnBhM0IxYTB0Nk0wNVJZek5MUzJaNFdFRkJUVlUxUkVsQ09EWnJkVGRFV25wU01qUjFaRGwzUmtoQmJFZE9jak5RUVZGS2NuZGphMU5GYkU1dWNqWjBUMVJOTFhRMGNFUkZSVTVVY0RCb2NtZEZVVTloUjNSTlprTmpTMWR2ZUY5c2JuWkxZbTlIYkdjd1RXWlNTV3hoTmxkU2RtVlRXRzl5YWkxaE5GOWpibnBaVmpWc1UwbDZVM3A1ZDNCNWFGWXdOWFZpVkZOcVJEVTRjbkpZV1VsclpXeElNR1ZaY0hCd1NreE9WRTl1TFRkb1JGcEZXazFPTkRONlVrSm5RamN3WmpScFRVOHdYMGR0YW5KdU9YTkZWVkpxYlU1UWNVeDBXRFJGYzBWWGNEZ3daR1Y2UjFNdFdtTk1ZelJXV0dkeE9FVlhVamxuWDBGc1oybE5jbTR3UVVGU2NtVlVjazU1UW5sbUxURXpla2hOT1RKV1QyaGpUa3g0U1VSbmVsVk1ZekYxZUVaV1ExSnhMV0Z4YlVkbmFqazNTbVJxZGtWak0wTkVRMk53VjNab1FVTnNVVmN5YzJkM05sRmtOSEpuU1ZKek0yeFhTelZIYmtwRllUUnRlRVpwV0RKRGREZG1Uazl6VFd0bGRTMXpUSFJDTVhGbGFEQTBhMVJQYW1WQlNrcFJWRXBJYkRoSlRrTnFaMHBJTlZVMWEyMTRSRUV0Umw5NFlUZzVSVkpITTJwTldsRjZSVVZpYWtOalpIVmpRMnRKZUdoaFVWUmxZME4yYXpsSVlWVndWWEpKZFc0d2IzVXdWblZTZVVGNVptMW9TRkkwVVVKd2MzQnNUekZWWXpaMmVrRkNZbEZrWVhSblkwcEJSWEZ2V2tNMFpreFhlbTFFTldodVZqSk5PVzFtV0ZSbFkxUnZMVzUzZHpOeVUxODNRM2M1YnhnRQ%3D%3D"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get-comments",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "comments"
+          ],
+          "query": [
+            {
+              "key": "url_or_id",
+              "value": "dQw4w9WgXcQ"
+            },
+            {
+              "key": "sort",
+              "value": "top"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get-comments-continuation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top&continuation=Eg0SC2RRdzR3OVdnWGNRGAYygAMKwwJnZXRfcmFua2VkX3N0cmVhbXMtLUNxY0JDSUFFRlJlMzBUZ2FuQUVLbHdFSTJGOFFnQVFZQnlLTUFkczhjQUUxd3V6NEhYTDA4S19TRVNuRVNDSHZOQVRFYS1SYWZkNm1GZWN4YlNFaFc5emNPMG1OQ3lUN2IyTldFbEtxQ0NUV2dDbVd0bjNSRURNN2RiU3B4N1J4MTVXaTcyaDd6SUNZTlUwWmhDQXYwM0NieFJQU240ejN4QVAzTmRCWE1LeGFxbU9ZeEFtOG4zVEZ0MXAwMVRaamlnN3U2MktwQXI1aEE1aU1TVEhjX0ZqOUc1dllIcTBHRUJRU0JRaTdJQmdBRWdjSWlTQVFBUmdBRWdVSWlDQVlBQklGQ0tnZ0dBQVNCd2lGSUJBRUdBRVNCd2lFSUJBUEdBRVNCd2lISUJBQkdBQSIRIgtkUXc0dzlXZ1hjUTAAeAEoFDABQiFlbmdhZ2VtZW50LXBhbmVsLWNvbW1lbnRzLXNlY3Rpb24%3D",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "comments"
+          ],
+          "query": [
+            {
+              "key": "url_or_id",
+              "value": "dQw4w9WgXcQ"
+            },
+            {
+              "key": "sort",
+              "value": "top"
+            },
+            {
+              "key": "continuation",
+              "value": "Eg0SC2RRdzR3OVdnWGNRGAYygAMKwwJnZXRfcmFua2VkX3N0cmVhbXMtLUNxY0JDSUFFRlJlMzBUZ2FuQUVLbHdFSTJGOFFnQVFZQnlLTUFkczhjQUUxd3V6NEhYTDA4S19TRVNuRVNDSHZOQVRFYS1SYWZkNm1GZWN4YlNFaFc5emNPMG1OQ3lUN2IyTldFbEtxQ0NUV2dDbVd0bjNSRURNN2RiU3B4N1J4MTVXaTcyaDd6SUNZTlUwWmhDQXYwM0NieFJQU240ejN4QVAzTmRCWE1LeGFxbU9ZeEFtOG4zVEZ0MXAwMVRaamlnN3U2MktwQXI1aEE1aU1TVEhjX0ZqOUc1dllIcTBHRUJRU0JRaTdJQmdBRWdjSWlTQVFBUmdBRWdVSWlDQVlBQklGQ0tnZ0dBQVNCd2lGSUJBRUdBRVNCd2lFSUJBUEdBRVNCd2lISUJBQkdBQSIRIgtkUXc0dzlXZ1hjUTAAeAEoFDABQiFlbmdhZ2VtZW50LXBhbmVsLWNvbW1lbnRzLXNlY3Rpb24%3D"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

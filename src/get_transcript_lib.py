@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 import requests
 
-from config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION, TIMEOUT
+from .config import INNERTUBE_CLIENT_VERSION, TIMEOUT
 
 try:
     import innertube
@@ -16,11 +16,7 @@ except ImportError:
 
 
 def get_transcript(url_or_id: str) -> list[dict]:
-    """
-    Returns transcript (prefers auto-generated captions).
-    Accepts video URL or ID.
-    Returns: [{"text": str, "start_ms": int}, ...]
-    """
+    """Returns transcript (prefers auto-generated). Accepts video URL or ID."""
     video_id = _video_id(url_or_id)
 
     if innertube is None:
@@ -60,7 +56,7 @@ def get_transcript(url_or_id: str) -> list[dict]:
 
 
 def _fallback_transcript(video_id: str) -> list[dict]:
-    from get_transcript import get_transcript as _get
+    from .get_transcript import get_transcript as _get
     return _get(video_id)
 
 
@@ -76,7 +72,7 @@ def _video_id(url_or_id: str) -> str:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python get_transcript_lib.py <url or video id>")
+        print("Usage: python -m src.get_transcript_lib <url or video id>")
         sys.exit(1)
     try:
         for s in get_transcript(sys.argv[1]):

@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 
 import requests
 
-from config import ANDROID_API_KEY, ANDROID_VERSION, BASE_URL, CLIENT_VERSION, TIMEOUT
+from .config import ANDROID_API_KEY, ANDROID_VERSION, BASE_URL, CLIENT_VERSION, TIMEOUT
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -22,11 +22,7 @@ ANDROID_CLIENT = {"clientName": "ANDROID", "clientVersion": ANDROID_VERSION}
 
 
 def get_transcript(url_or_id: str) -> list[dict]:
-    """
-    Returns transcript (prefers auto-generated captions).
-    Accepts video URL or ID.
-    Returns: [{"text": str, "start_ms": int}, ...]
-    """
+    """Returns transcript (prefers auto-generated). Accepts video URL or ID."""
     video_id = _video_id(url_or_id)
     tracks = _fetch_caption_tracks(video_id)
     track = next((t for t in tracks if t.get("kind") == "asr"), tracks[0])
@@ -78,7 +74,7 @@ def _fetch_caption_tracks(video_id: str) -> list:
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: python get_transcript.py <url or video id>")
+        print("Usage: python -m src.get_transcript <url or video id>")
         sys.exit(1)
     try:
         for s in get_transcript(sys.argv[1]):

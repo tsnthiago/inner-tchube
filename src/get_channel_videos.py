@@ -4,7 +4,7 @@ import argparse
 import re
 import sys
 
-from config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
+from .config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
 from innertube import InnerTube
 
 
@@ -19,10 +19,7 @@ def _channel_id(url_or_id: str) -> str:
 
 
 def get_channel_videos(channel_id: str, continuation: str | None = None) -> dict:
-    """
-    Returns channel videos. Accepts channel ID (UC...) or channel URL.
-    Returns: {"items": [{"video_id", "title"}], "continuation": str|None}
-    """
+    """Returns channel videos. Accepts channel ID (UC...) or channel URL."""
     cid = _channel_id(channel_id)
     client = InnerTube(INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION)
 

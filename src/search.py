@@ -3,7 +3,7 @@
 import argparse
 import sys
 
-from config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
+from .config import INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION
 from innertube import InnerTube
 
 TYPE_PARAMS = {"video": "EgIQAQ%3D%3D", "channel": "EgIQAg%3D%3D", "playlist": "EgIQAw%3D%3D", "film": "EgIQBA%3D%3D"}
@@ -14,10 +14,7 @@ def _title_from_runs(obj: dict) -> str:
 
 
 def search(query: str, type: str = "video", continuation: str | None = None) -> dict:
-    """
-    Returns search results. type: video|channel|playlist|film.
-    Returns: {"items": [...], "continuation": str|None}
-    """
+    """Returns search results. type: video|channel|playlist|film."""
     client = InnerTube(INNERTUBE_CLIENT, INNERTUBE_CLIENT_VERSION)
     if continuation:
         data = client.search(continuation=continuation)
