@@ -92,7 +92,7 @@ python -m uvicorn src.api:app --reload --host 127.0.0.1 --port 8000
 
 Server at `http://127.0.0.1:8000`. If port 8000 fails (WinError 10013), try `--port 8080`. Interactive docs at `/docs`.
 
-**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, channel-from-video, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
+**Postman:** Import `InnerTchube.postman_collection.json` in Postman to test all endpoints (transcript, metadata, channel-from-video, process, search, channel-videos, comments, analyze-transcript) with ready-made examples. The collection includes requests with and without pagination (continuation).
 
 curl examples:
 
@@ -126,7 +126,20 @@ curl "http://127.0.0.1:8000/comments?url_or_id=dQw4w9WgXcQ&sort=top&continuation
 
 # Analyze transcript (Gemini)
 curl "http://127.0.0.1:8000/analyze-transcript?url_or_id=dQw4w9WgXcQ&prompt=Summarize%20this%20video"
+
+# Process (metadata + transcript + comments, saves to output/)
+curl "http://127.0.0.1:8000/process?videos=dQw4w9WgXcQ"
+curl "http://127.0.0.1:8000/process?channels=UCXuqSBlHAE6Xw-yeJA0Tunw"
+curl -X POST "http://127.0.0.1:8000/process" -H "Content-Type: application/json" -d "{\"videos\":[\"dQw4w9WgXcQ\"],\"channels\":[]}"
 ```
+
+## Process and Scheduler
+
+The `/process` endpoint fetches metadata, transcript, and comments for videos/channels and saves JSON files to `output/videos/` and `output/channels/` without duplicating. A daily scheduler (2:00 AM) checks `monitored_channels.json` and processes new videos for listed channels.
+
+- **monitored_channels.json**: List of channel IDs to monitor, e.g. `["UCxxx...", "UCyyy..."]`
+- **MONITORED_CHANNELS** (env): Comma-separated channel IDs (overrides file)
+- **output/**: `output/videos/{video_id}.json`, `output/channels/{channel_id}.json`
 
 ## Config
 
@@ -147,9 +160,15 @@ innertube/
 │   ├── get_channel_videos.py
 │   ├── get_comments.py
 │   ├── analyze_transcript.py
+│   ├── process.py
+│   ├── scheduler.py
 │   ├── config.py
 │   ├── test_all.py
 │   └── api.py
+├── output/
+│   ├── videos/
+│   └── channels/
+├── monitored_channels.json
 ├── InnerTchube.postman_collection.json
 ├── .env.example
 ├── requirements.txt

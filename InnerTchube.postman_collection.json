@@ -91,6 +91,69 @@
       "response": []
     },
     {
+      "name": "process-get",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/process?videos=dQw4w9WgXcQ&channels=UCXuqSBlHAE6Xw-yeJA0Tunw",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "process"
+          ],
+          "query": [
+            {
+              "key": "videos",
+              "value": "dQw4w9WgXcQ"
+            },
+            {
+              "key": "channels",
+              "value": "UCXuqSBlHAE6Xw-yeJA0Tunw"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "process-post",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"videos\": [\"dQw4w9WgXcQ\"], \"channels\": [\"UCXuqSBlHAE6Xw-yeJA0Tunw\"]}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/process",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "process"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "search",
       "request": {
         "method": "GET",

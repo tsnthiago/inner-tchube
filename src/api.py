@@ -1,8 +1,11 @@
 """FastAPI wrapper for InnerTube functions."""
 
+from contextlib import asynccontextmanager
+
 from . import config  # noqa: F401 - load .env
 
 from fastapi import FastAPI, Query
+from pydantic import BaseModel
 
 from .get_transcript import get_transcript
 from .get_metadata import get_metadata
@@ -11,8 +14,22 @@ from .search import search
 from .get_channel_videos import get_channel_videos
 from .get_comments import get_comments
 from .analyze_transcript import analyze_transcript
+from .process import process_items
+from .scheduler import start_scheduler
 
-app = FastAPI(title="InnerTube API")
+_scheduler = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global _scheduler
+    _scheduler = start_scheduler()
+    yield
+    if _scheduler:
+        _scheduler.shutdown(wait=False)
+
+
+app = FastAPI(title="InnerTube API", lifespan=lifespan)
 
 
 @app.get("/transcript")
@@ -63,3 +80,31 @@ def analyze_transcript_endpoint(
     model: str | None = Query(None, description="Gemini model override"),
 ):
     return analyze_transcript(url_or_id, prompt, model=model)
+
+
+@app.get("/process")
+def process_get(
+    videos: str | None = Query(None, description="Comma-separated video IDs or URLs"),
+    channels: str | None = Query(None, description="Comma-separated channel IDs or URLs"),
+):
+    """Process videos/channels, save to output/. Skips existing."""
+    video_list = [v.strip() for v in (videos or "").split(",") if v.strip()]
+    channel_list = [c.strip() for c in (channels or "").split(",") if c.strip()]
+    if not video_list and not channel_list:
+        return {"error": "Provide videos and/or channels"}
+    return process_items(videos=video_list, channels=channel_list)
+
+
+class ProcessBody(BaseModel):
+    videos: list[str] | None = None
+    channels: list[str] | None = None
+
+
+@app.post("/process")
+def process_post(body: ProcessBody):
+    """Process videos/channels from JSON body. Keys: videos, channels (arrays)."""
+    video_list = body.videos or []
+    channel_list = body.channels or []
+    if not video_list and not channel_list:
+        return {"error": "Provide videos and/or channels in body"}
+    return process_items(videos=video_list, channels=channel_list)
